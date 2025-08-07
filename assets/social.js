@@ -1,0 +1,163 @@
+(function () {
+  const FEED_KEY = 'trd_feed_v2';
+  const LAST_POST_KEY = 'trd_last_post_ts';
+  const USER_KEY = 'trd_user_handle';
+
+  const feedEl = document.getElementById('feed');
+  const txt = document.getElementById('postText');
+  const btn = document.getElementById('postBtn');
+  const handleInput = document.getElementById('handle');
+
+  if (!feedEl || !txt || !btn) return;
+
+  // init handle
+  handleInput && (handleInput.value = localStorage.getItem(USER_KEY) || '');
+
+  function loadFeed() {
+    feedEl.innerHTML = '';
+    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
+
+    // newest first
+    items.slice().reverse().forEach((p) => {
+      const card = document.createElement('div');
+      card.className = 'staff-card fade-in visible';
+      card.innerHTML = `
+        <div class="staff-avatar"><i class="fas fa-user"></i></div>
+        <h3>${escapeHtml(p.author || 'Survivor')}</h3>
+        <div class="staff-role">${new Date(p.ts).toLocaleString()}</div>
+        <div class="staff-bio">${escapeHtml(p.text)}</div>
+
+        <div style="display:flex; gap:.5rem; margin-top:.75rem;">
+          <button class="buy-btn" data-like="${p.id}">👍 ${p.likes||0}</button>
+          <button class="buy-btn" data-toggle-comments="${p.id}">Comments (${(p.comments||[]).length})</button>
+          <button class="buy-btn" data-del="${p.id}">Delete</button>
+        </div>
+
+        <div class="contact-form" data-comments="${p.id}" style="display:none; margin-top:1rem;">
+          <div class="form-group">
+            <input data-c-handle="${p.id}" placeholder="Your handle (optional)">
+          </div>
+          <div class="form-group">
+            <textarea data-c-text="${p.id}" placeholder="Write a comment..."></textarea>
+          </div>
+          <button class="submit-btn" data-c-post="${p.id}"><i class="fas fa-comment"></i> Add Comment</button>
+          <div data-c-list="${p.id}" style="margin-top:1rem;"></div>
+        </div>
+      `;
+      feedEl.appendChild(card);
+
+      // render existing comments
+      renderComments(p.id);
+    });
+  }
+
+  function renderComments(postId) {
+    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
+    const post = items.find(i => i.id === postId);
+    const list = document.querySelector(`[data-c-list="${postId}"]`);
+    if (!list || !post) return;
+    const comments = post.comments || [];
+    list.innerHTML = comments.map(c => `
+      <div class="server-info" style="margin:.5rem 0;">
+        <strong>${escapeHtml(c.author || 'Survivor')}</strong>
+        <span style="opacity:.7; margin-left:.5rem;">${new Date(c.ts).toLocaleString()}</span>
+        <div style="margin-top:.25rem;">${escapeHtml(c.text)}</div>
+      </div>
+    `).join('');
+  }
+
+  function save(items) {
+    localStorage.setItem(FEED_KEY, JSON.stringify(items));
+  }
+
+  function rateLimited(ms=8000) {
+    const last = Number(localStorage.getItem(LAST_POST_KEY) || 0);
+    const now = Date.now();
+    if (now - last < ms) return true;
+    localStorage.setItem(LAST_POST_KEY, String(now));
+    return false;
+  }
+
+  btn?.addEventListener('click', function () {
+    const text = txt.value.trim();
+    const author = (handleInput && handleInput.value.trim()) || '';
+    if (!text) return;
+    if (rateLimited()) return alert('Slow down a sec before posting again 🙂');
+
+    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
+    const post = {
+      id: Date.now(),
+      ts: Date.now(),
+      text,
+      author,
+      likes: 0,
+      comments: []
+    };
+    items.push(post);
+    save(items);
+    handleInput && localStorage.setItem(USER_KEY, author);
+    txt.value = '';
+    loadFeed();
+
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'submit', { event_category: 'Social', event_label: 'Post_Submit' });
+    }
+  });
+
+  feedEl.addEventListener('click', function (e) {
+    const likeBtn = e.target.closest('button[data-like]');
+    const delBtn = e.target.closest('button[data-del]');
+    const toggle = e.target.closest('button[data-toggle-comments]');
+    const addComment = e.target.closest('button[data-c-post]');
+
+    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
+
+    if (likeBtn) {
+      const id = Number(likeBtn.getAttribute('data-like'));
+      const p = items.find(i => i.id === id);
+      if (p) p.likes = (p.likes || 0) + 1;
+      save(items); loadFeed(); return;
+    }
+
+    if (toggle) {
+      const id = toggle.getAttribute('data-toggle-comments');
+      const box = document.querySelector(`[data-comments="${id}"]`);
+      if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+      return;
+    }
+
+    if (addComment) {
+      const id = Number(addComment.getAttribute('data-c-post'));
+      const cHandleEl = document.querySelector(`[data-c-handle="${id}"]`);
+      const cTextEl = document.querySelector(`[data-c-text="${id}"]`);
+      const cHandle = (cHandleEl && cHandleEl.value.trim()) || '';
+      const cText = (cTextEl && cTextEl.value.trim()) || '';
+      if (!cText) return;
+      const p = items.find(i => i.id === id);
+      if (p) {
+        p.comments = p.comments || [];
+        p.comments.push({ id: Date.now(), ts: Date.now(), author: cHandle, text: cText });
+        save(items); renderComments(id);
+        if (cTextEl) cTextEl.value = '';
+      }
+      return;
+    }
+
+    if (delBtn) {
+      const id = Number(delBtn.getAttribute('data-del'));
+      const me = (localStorage.getItem(USER_KEY) || '').trim().toLowerCase();
+      const post = items.find(i => i.id === id);
+      // Only allow delete if no handle set on either side, or matches yours (client-side "soft" rule")
+      if (!post || (post.author || '').trim().toLowerCase() !== me) {
+        if (!confirm('Delete anyway? (Local only)')) return;
+      }
+      save(items.filter(i => i.id !== id)); loadFeed(); return;
+    }
+  });
+
+  function escapeHtml(s='') {
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',\"'\":'&#39;'}[c]));
+  }
+
+  loadFeed();
+})();
