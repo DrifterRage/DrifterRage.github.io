@@ -1,3 +1,4 @@
+<script>
 (function () {
   const FEED_KEY = 'trd_feed_v2';
   const LAST_POST_KEY = 'trd_last_post_ts';
@@ -11,7 +12,7 @@
   if (!feedEl || !txt || !btn) return;
 
   // init handle
-  handleInput && (handleInput.value = localStorage.getItem(USER_KEY) || '');
+  if (handleInput) handleInput.value = localStorage.getItem(USER_KEY) || '';
 
   function loadFeed() {
     feedEl.innerHTML = '';
@@ -95,7 +96,7 @@
     };
     items.push(post);
     save(items);
-    handleInput && localStorage.setItem(USER_KEY, author);
+    if (handleInput) localStorage.setItem(USER_KEY, author);
     txt.value = '';
     loadFeed();
 
@@ -147,7 +148,7 @@
       const id = Number(delBtn.getAttribute('data-del'));
       const me = (localStorage.getItem(USER_KEY) || '').trim().toLowerCase();
       const post = items.find(i => i.id === id);
-      // Only allow delete if no handle set on either side, or matches yours (client-side "soft" rule")
+      // Only allow delete if no handle set on either side, or matches yours (client-side "soft" rule)
       if (!post || (post.author || '').trim().toLowerCase() !== me) {
         if (!confirm('Delete anyway? (Local only)')) return;
       }
@@ -156,8 +157,16 @@
   });
 
   function escapeHtml(s='') {
-    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',\"'\":'&#39;'}[c]));
+    // ✅ fixed: proper key for single-quote
+    return s.replace(/[&<>"']/g, c => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[c]));
   }
 
   loadFeed();
 })();
+</script>
