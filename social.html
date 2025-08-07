@@ -78,27 +78,36 @@
   <!-- Firestore-powered Social Feed -->
   <script type="module">
     /************************************
-     * TwoRoadsDayZ - Firestore Social
+     * TwoRoadsDayZ - Firestore Social (with Auth)
      * Works on GitHub Pages via CDN imports
      ************************************/
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
     import {
       getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp,
       doc, updateDoc, increment, deleteDoc, getDoc
-    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
+    import {
+      getAuth, signInAnonymously, onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js';
 
-    // 🔧 REPLACE WITH EXACT VALUES FROM FIREBASE PROJECT SETTINGS
+    // 🔧 Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDtu5RX7ZR6xU9EfUAq9_jmgQp_2aS08N4",
       authDomain: "tworoadsdayzmediashare.firebaseapp.com",
       projectId: "tworoadsdayzmediashare",
-      storageBucket: "tworoadsdayzmediashare.appspot.com",
+      storageBucket: "tworoadsdayzmediashare.firebasestorage.app",
       messagingSenderId: "1071182717113",
       appId: "1:1071182717113:web:e5d3f7b23997cc58087b68"
     };
 
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
+
+    // 🔐 Anonymous Auth (gives each visitor a uid)
+    const auth = getAuth();
+    let currentUid = null;
+    signInAnonymously(auth).catch(console.error);
+    onAuthStateChanged(auth, (user) => { currentUid = user?.uid || null; });
 
     // DOM refs
     const feedEl      = document.getElementById('feed');
@@ -140,11 +149,12 @@
       try {
         if (handleInput) localStorage.setItem(USER_KEY, author);
         await addDoc(collection(db, 'posts'), {
-          text,
+          content: text,                 // standardized to `content` (not `text`)
           author,
+          uid: currentUid,               // who posted
           likes: 0,
           commentsCount: 0,
-          ts: serverTimestamp()
+          createdAt: serverTimestamp()   // standardized to `createdAt` (for rules)
         });
         if (txt) txt.value = '';
         await loadFeed();
@@ -162,8 +172,7 @@
     async function loadComments(postId) {
       const list = document.querySelector(`[data-c-list="${postId}"]`);
       if (!list) return;
-      // Simple list fetch (not realtime, can upgrade later)
-      const q = query(collection(db, 'posts', postId, 'comments'), orderBy('ts', 'asc'));
+      const q = query(collection(db, 'posts', postId, 'comments'), orderBy('createdAt', 'asc'));
       const snap = await getDocs(q);
       if (snap.empty) {
         list.innerHTML = '<div class="server-info" style="opacity:.7">No comments yet.</div>';
@@ -174,7 +183,7 @@
         return `
           <div class="server-info" style="margin:.5rem 0;">
             <strong>${escapeHtml(c.author || 'Survivor')}</strong>
-            <span style="opacity:.7; margin-left:.5rem;">${toDate(c.ts).toLocaleString()}</span>
+            <span style="opacity:.7; margin-left:.5rem;">${toDate(c.createdAt).toLocaleString()}</span>
             <div style="margin-top:.25rem;">${escapeHtml(c.text || '')}</div>
           </div>
         `;
@@ -216,7 +225,11 @@
           if (!text) return;
 
           await addDoc(collection(db, 'posts', id, 'comments'), {
-            author, text, ts: serverTimestamp()
+            author,
+            text,
+            uid: currentUid,
+            likes: 0,
+            createdAt: serverTimestamp()
           });
           await updateDoc(doc(db, 'posts', id), { commentsCount: increment(1) });
           if (tInput) tInput.value = '';
@@ -230,13 +243,14 @@
         if (delBtn) {
           const id  = delBtn.getAttribute('data-del');
           const ref = doc(db, 'posts', id);
-          const me  = (localStorage.getItem(USER_KEY) || '').trim().toLowerCase();
+          const myHandle = (localStorage.getItem(USER_KEY) || '').trim().toLowerCase();
 
           const snap = await getDoc(ref);
           const post = snap.exists() ? snap.data() : null;
           const owner = (post?.author || '').trim().toLowerCase();
 
-          if (owner && me !== owner) {
+          // Soft client check by handle (final enforcement happens in rules)
+          if (owner && myHandle !== owner) {
             const ok = confirm('Handle does not match post author. Delete anyway?');
             if (!ok) return;
           }
@@ -255,7 +269,7 @@
       if (!feedEl) return;
       feedEl.innerHTML = '';
 
-      const q = query(collection(db, 'posts'), orderBy('ts', 'desc'));
+      const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
       const snap = await getDocs(q);
 
       if (snap.empty) {
@@ -271,8 +285,8 @@
         card.innerHTML = `
           <div class="staff-avatar"><i class="fas fa-user"></i></div>
           <h3>${escapeHtml(p.author || 'Survivor')}</h3>
-          <div class="staff-role">${toDate(p.ts).toLocaleString()}</div>
-          <div class="staff-bio">${escapeHtml(p.text || '')}</div>
+          <div class="staff-role">${toDate(p.createdAt).toLocaleString()}</div>
+          <div class="staff-bio">${escapeHtml(p.content || '')}</div>
 
           <div style="display:flex; gap:.5rem; margin-top:.75rem;">
             <button class="buy-btn" data-like="${id}">
