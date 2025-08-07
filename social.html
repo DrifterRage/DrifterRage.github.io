@@ -1,161 +1,80 @@
-<script>
-(function () {
-  const FEED_KEY = 'trd_feed_v2';
-  const LAST_POST_KEY = 'trd_last_post_ts';
-  const USER_KEY = 'trd_user_handle';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TwoRoadsDayZ — Community Feed</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="assets/style.css" rel="stylesheet">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPFMB30C0P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-TPFMB30C0P');
+  </script>
+</head>
+<body>
+  <!-- Scroll Indicator -->
+  <div class="scroll-indicator"><div class="scroll-progress"></div></div>
+  <!-- Background Particles -->
+  <div class="particles"></div>
 
-  const feedEl = document.getElementById('feed');
-  const txt = document.getElementById('postText');
-  const btn = document.getElementById('postBtn');
-  const handleInput = document.getElementById('handle');
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">TwoRoadsDayZ</a>
+      <ul class="nav-links">
+        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="join.html"><i class="fas fa-server"></i> Join</a></li>
+        <li><a href="store.html"><i class="fas fa-shopping-cart"></i> Store</a></li>
+        <li><a href="about.html"><i class="fas fa-info"></i> About</a></li>
+        <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
+        <li><a href="social.html"><i class="fas fa-users"></i> Community</a></li>
+        <li><a href="media.html"><i class="fas fa-play"></i> Media</a></li>
+      </ul>
+    </div>
+  </nav>
 
-  // init handle
-  handleInput.value = localStorage.getItem(USER_KEY) || '';
+  <!-- Page Header -->
+  <section class="hero" id="top">
+    <div class="hero-content">
+      <h1>Your Feed</h1>
+      <p>Share your latest survival stories.</p>
+    </div>
+  </section>
 
-  function loadFeed() {
-    feedEl.innerHTML = '';
-    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
-
-    // newest first
-    items.slice().reverse().forEach((p) => {
-      const card = document.createElement('div');
-      card.className = 'staff-card fade-in visible';
-      card.innerHTML = `
-        <div class="staff-avatar"><i class="fas fa-user"></i></div>
-        <h3>${escapeHtml(p.author || 'Survivor')}</h3>
-        <div class="staff-role">${new Date(p.ts).toLocaleString()}</div>
-        <div class="staff-bio">${escapeHtml(p.text)}</div>
-
-        <div style="display:flex; gap:.5rem; margin-top:.75rem;">
-          <button class="buy-btn" data-like="${p.id}">👍 ${p.likes||0}</button>
-          <button class="buy-btn" data-toggle-comments="${p.id}">Comments (${(p.comments||[]).length})</button>
-          <button class="buy-btn" data-del="${p.id}">Delete</button>
+  <!-- Composer -->
+  <section>
+    <div class="container">
+      <div class="contact-form fade-in" style="max-width:800px;margin:0 auto;">
+        <div class="form-group">
+          <label for="handle">Your Handle (optional)</label>
+          <input id="handle" placeholder="e.g., Snipes">
         </div>
 
-        <div class="contact-form" data-comments="${p.id}" style="display:none; margin-top:1rem;">
-          <div class="form-group">
-            <input data-c-handle="${p.id}" placeholder="Your handle (optional)">
-          </div>
-          <div class="form-group">
-            <textarea data-c-text="${p.id}" placeholder="Write a comment..."></textarea>
-          </div>
-          <button class="submit-btn" data-c-post="${p.id}"><i class="fas fa-comment"></i> Add Comment</button>
-          <div data-c-list="${p.id}" style="margin-top:1rem;"></div>
+        <div class="form-group">
+          <label for="postText">New Post</label>
+          <textarea id="postText" placeholder="Share what just happened..."></textarea>
         </div>
-      `;
-      feedEl.appendChild(card);
 
-      // render existing comments
-      renderComments(p.id);
-    });
-  }
-
-  function renderComments(postId) {
-    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
-    const post = items.find(i => i.id === postId);
-    const list = document.querySelector(`[data-c-list="${postId}"]`);
-    if (!list || !post) return;
-    const comments = post.comments || [];
-    list.innerHTML = comments.map(c => `
-      <div class="server-info" style="margin:.5rem 0;">
-        <strong>${escapeHtml(c.author || 'Survivor')}</strong>
-        <span style="opacity:.7; margin-left:.5rem;">${new Date(c.ts).toLocaleString()}</span>
-        <div style="margin-top:.25rem;">${escapeHtml(c.text)}</div>
+        <button class="submit-btn" id="postBtn"><i class="fas fa-plus"></i> Post</button>
       </div>
-    `).join('');
-  }
 
-  function save(items) {
-    localStorage.setItem(FEED_KEY, JSON.stringify(items));
-  }
+      <div class="section-divider"></div>
 
-  function rateLimited(ms=8000) {
-    const last = Number(localStorage.getItem(LAST_POST_KEY) || 0);
-    const now = Date.now();
-    if (now - last < ms) return true;
-    localStorage.setItem(LAST_POST_KEY, String(now));
-    return false;
-  }
+      <!-- Feed -->
+      <div id="feed" class="staff-grid"></div>
+    </div>
+  </section>
 
-  btn?.addEventListener('click', function () {
-    const text = txt.value.trim();
-    const author = handleInput.value.trim();
-    if (!text) return;
-    if (rateLimited()) return alert('Slow down a sec before posting again 🙂');
+  <!-- Floating Action Button -->
+  <a href="#top" class="fab"><i class="fas fa-chevron-up"></i></a>
 
-    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
-    const post = {
-      id: Date.now(),
-      ts: Date.now(),
-      text,
-      author,
-      likes: 0,
-      comments: []
-    };
-    items.push(post);
-    save(items);
-    localStorage.setItem(USER_KEY, author);
-    txt.value = '';
-    loadFeed();
-
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'submit', { event_category: 'Social', event_label: 'Post_Submit' });
-    }
-  });
-
-  feedEl.addEventListener('click', function (e) {
-    const likeBtn = e.target.closest('button[data-like]');
-    const delBtn = e.target.closest('button[data-del]');
-    const toggle = e.target.closest('button[data-toggle-comments]');
-    const addComment = e.target.closest('button[data-c-post]');
-
-    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
-
-    if (likeBtn) {
-      const id = Number(likeBtn.getAttribute('data-like'));
-      const p = items.find(i => i.id === id);
-      if (p) p.likes = (p.likes || 0) + 1;
-      save(items); loadFeed(); return;
-    }
-
-    if (toggle) {
-      const id = toggle.getAttribute('data-toggle-comments');
-      const box = document.querySelector(`[data-comments="${id}"]`);
-      if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
-      return;
-    }
-
-    if (addComment) {
-      const id = Number(addComment.getAttribute('data-c-post'));
-      const cHandle = document.querySelector(`[data-c-handle="${id}"]`).value.trim();
-      const cText = document.querySelector(`[data-c-text="${id}"]`).value.trim();
-      if (!cText) return;
-      const p = items.find(i => i.id === id);
-      if (p) {
-        p.comments = p.comments || [];
-        p.comments.push({ id: Date.now(), ts: Date.now(), author: cHandle, text: cText });
-        save(items); renderComments(id);
-        document.querySelector(`[data-c-text="${id}"]`).value = '';
-      }
-      return;
-    }
-
-    if (delBtn) {
-      const id = Number(delBtn.getAttribute('data-del'));
-      const me = (localStorage.getItem(USER_KEY) || '').trim().toLowerCase();
-      const post = items.find(i => i.id === id);
-      // Only allow delete if no handle set on either side, or matches yours (client-side "soft" rule)
-      if (!post || (post.author || '').trim().toLowerCase() !== me) {
-        if (!confirm('Delete anyway? (Local only)')) return;
-      }
-      save(items.filter(i => i.id !== id)); loadFeed(); return;
-    }
-  });
-
-  function escapeHtml(s='') {
-    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-
-  loadFeed();
-})();
-</script>
+  <!-- Global site JS -->
+  <script src="assets/script.js"></script>
+  <!-- Social page logic -->
+  <script src="assets/social.js"></script>
+</body>
+</html>
