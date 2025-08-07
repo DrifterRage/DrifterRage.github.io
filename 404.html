@@ -1,19 +1,51 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 - Not Found</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 - TwoRoadsDayZ</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="assets/style.css" rel="stylesheet">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPFMB30C0P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-TPFMB30C0P');
+  </script>
 </head>
 <body>
-  <section class="hero">
-    <div class="hero-content">
-      <h1>404</h1>
-      <p>Page not found. Head back to safety.</p>
-      <a class="btn btn-primary" href="index.html">Return Home</a>
+  <div class="scroll-indicator"><div class="scroll-progress"></div></div>
+  <div class="particles"></div>
+  <nav id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">TwoRoadsDayZ</a>
+      <ul class="nav-links">
+        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="join.html"><i class="fas fa-server"></i> Join</a></li>
+        <li><a href="store.html"><i class="fas fa-shopping-cart"></i> Store</a></li>
+        <li><a href="about.html"><i class="fas fa-info"></i> About</a></li>
+        <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
+        <li><a href="social.html"><i class="fas fa-users"></i> Community</a></li>
+        <li><a href="media.html"><i class="fas fa-play"></i> Media</a></li>
+      </ul>
     </div>
-  </section>
+  </nav>
+
+<section id="top" class="hero">
+  <div class="hero-content">
+    <h1>404: Lost in the Wasteland</h1>
+    <p>That route is blocked. Try the safe paths below.</p>
+    <div style="margin-top:1rem;">
+      <a href="index.html" class="btn btn-primary">Home</a>
+      <a href="join.html" class="btn btn-secondary">Join</a>
+    </div>
+  </div>
+</section>
+
+  <a href="#top" class="fab"><i class="fas fa-chevron-up"></i></a>
+  <script src="assets/script.js"></script>
 </body>
 </html>
+
