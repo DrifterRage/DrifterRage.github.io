@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TwoRoadsDayZ - Survive the Apocalypse</title>
+  <title>Contact - TwoRoadsDayZ</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="assets/style.css" rel="stylesheet">
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TPFMB30C0P"></script>
-<script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPFMB30C0P"></script>
+  <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-TPFMB30C0P');
-</script>
+  </script>
 </head>
 <body>
   <div class="scroll-indicator"><div class="scroll-progress"></div></div>
@@ -32,49 +32,74 @@
       </ul>
     </div>
   </nav>
-<section class="hero">
+
+<section id="top" class="hero">
   <div class="hero-content">
-    <h1>Get in Touch</h1>
-    <p>We usually respond within 24 hours.</p>
+    <h1>Contact</h1>
+    <p>Reach the admins for support or questions.</p>
   </div>
 </section>
-<section id="contact">
-  <div class="container">
-    <h2 class="section-title fade-in">Contact</h2>
-    <div class="contact-container">
-      <div class="contact-grid">
-        <div class="contact-info fade-in">
-          <h3 style="margin-bottom: 2rem; color: #fff;">Contact Information</h3>
-          <div class="contact-item"><i class="fas fa-envelope"></i><div class="contact-item-content"><h4>Email Us</h4><p>TwoRoadsDayZ@mail.com</p></div></div>
-          <div class="contact-item"><i class="fab fa-discord"></i><div class="contact-item-content"><h4>Discord Support</h4><p>Join our server for instant help</p></div></div>
-          <div class="contact-item"><i class="fas fa-headset"></i><div class="contact-item-content"><h4>Support Topics</h4><p>Server issues, Store questions, Discord help, Technical support</p></div></div>
+
+<section>
+  <div class="container contact-container">
+    <h2 class="section-title fade-in">Get in Touch</h2>
+    <div class="contact-grid">
+      <div class="contact-info fade-in">
+        <h3 style="margin-bottom: 2rem; color: #fff;">Contact Information</h3>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <div class="contact-item-content">
+            <h4>Email Us</h4>
+            <p>TwoRoadsDayZ@mail.com</p>
+          </div>
         </div>
-        <div class="contact-form fade-in">
-          <h3 style="margin-bottom: 2rem; color: #fff;">Send us a Message</h3>
-          <form action="mailto:TwoRoadsDayZ@mail.com" method="post" enctype="text/plain" data-track="contact">
-            <div class="form-group"><label for="name">Your Name</label><input type="text" id="name" name="name" required></div>
-            <div class="form-group"><label for="email">Your Email</label><input type="email" id="email" name="email" required></div>
-            <div class="form-group"><label for="subject">Subject</label>
-              <select id="subject" name="subject" required>
-                <option value="">Select a topic...</option>
-                <option value="Server Issues">Server Issues</option>
-                <option value="Store Questions">Store Questions</option>
-                <option value="Discord Help">Discord Help</option>
-                <option value="Technical Support">Technical Support</option>
-                <option value="General Inquiry">General Inquiry</option>
-                <option value="Bug Report">Bug Report</option>
-                <option value="Suggestion">Suggestion</option>
-              </select>
-            </div>
-            <div class="form-group"><label for="message">Message</label><textarea id="message" name="message" placeholder="Please describe your issue or question in detail..." required></textarea></div>
-            <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Send Message</button>
-          </form>
+        <div class="contact-item">
+          <i class="fab fa-discord"></i>
+          <div class="contact-item-content">
+            <h4>Discord Support</h4>
+            <p>Join our server for instant help</p>
+          </div>
         </div>
+      </div>
+      <div class="contact-form fade-in">
+        <h3 style="margin-bottom: 2rem; color: #fff;">Send us a Message</h3>
+        <form action="mailto:TwoRoadsDayZ@mail.com" method="post" enctype="text/plain">
+          <div class="form-group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Your Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <select id="subject" name="subject" required>
+              <option value="">Select a topic...</option>
+              <option value="Server Issues">Server Issues</option>
+              <option value="Store Questions">Store Questions</option>
+              <option value="Discord Help">Discord Help</option>
+              <option value="Technical Support">Technical Support</option>
+              <option value="General Inquiry">General Inquiry</option>
+              <option value="Bug Report">Bug Report</option>
+              <option value="Suggestion">Suggestion</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Please describe your issue or question in detail..." required></textarea>
+          </div>
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-paper-plane"></i> Send Message
+          </button>
+        </form>
       </div>
     </div>
   </div>
 </section>
-<a href="#top" class="fab"><i class="fas fa-chevron-up"></i></a>
+
+  <a href="#top" class="fab"><i class="fas fa-chevron-up"></i></a>
   <script src="assets/script.js"></script>
 </body>
 </html>
+
