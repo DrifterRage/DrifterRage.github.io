@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TwoRoadsDayZ - Survive the Apocalypse</title>
+  <title>Social - TwoRoadsDayZ</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="assets/style.css" rel="stylesheet">
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TPFMB30C0P"></script>
-<script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPFMB30C0P"></script>
+  <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-TPFMB30C0P');
-</script>
+  </script>
 </head>
 <body>
   <div class="scroll-indicator"><div class="scroll-progress"></div></div>
@@ -32,100 +32,83 @@
       </ul>
     </div>
   </nav>
-<section class="hero">
+
+<section id="top" class="hero">
   <div class="hero-content">
     <h1>Wasteland Social Network</h1>
-    <p>Share your survival stories. (Local beta)</p>
-    <a href="https://discord.gg/CvRctFATVR" target="_blank" class="btn btn-secondary"><i class="fab fa-discord"></i> Join Discord</a>
+    <p>Post your survival stories (saved in your browser).</p>
   </div>
 </section>
 
 <section>
   <div class="container">
-    <h2 class="section-title fade-in">Survivor Feed</h2>
-
-    <div class="server-status-simple fade-in">
-      <div class="status-dot-simple"></div>
-      <span>Feed Online • Posts are saved to your browser (private to you) while we build the backend.</span>
+    <h2 class="section-title fade-in">Your Feed</h2>
+    <div class="contact-form fade-in" style="max-width:800px;margin:0 auto;">
+      <div class="form-group">
+        <label for="postText">New Post</label>
+        <textarea id="postText" placeholder="Share what just happened..."></textarea>
+      </div>
+      <button class="submit-btn" id="postBtn"><i class="fas fa-plus"></i> Post</button>
     </div>
 
-    <div class="contact-form fade-in" style="margin-bottom:2rem;">
-      <h3 style="margin-bottom:1rem; color:#fff;">Create a Post</h3>
-      <form id="postForm">
-        <div class="form-group">
-          <label for="poster">Survivor Name</label>
-          <input id="poster" name="poster" placeholder="e.g., Johnny Snipes" required />
-        </div>
-        <div class="form-group">
-          <label for="content">Message</label>
-          <textarea id="content" name="content" placeholder="What happened out there?" required></textarea>
-        </div>
-        <button type="submit" class="submit-btn"><i class="fas fa-plus-circle"></i> Post</button>
-      </form>
-    </div>
+    <div class="section-divider"></div>
 
-    <div id="feed" class="server-grid fade-in"></div>
-
-    <div class="coming-soon-message fade-in">
-      <h3><i class="fas fa-toolbox"></i> Roadmap</h3>
-      <p>Planned features: image uploads, global feed, likes/comments, and server-wide announcements.</p>
-    </div>
+    <div id="feed" class="staff-grid"></div>
   </div>
 </section>
 
 <script>
-  // Minimal localStorage-backed feed
-  (function(){
-    const key = 'tworoads_social_posts_v1';
-    const form = document.getElementById('postForm');
-    const feed = document.getElementById('feed');
+(function() {
+  const FEED_KEY = 'trd_feed_v1';
+  const feedEl = document.getElementById('feed');
+  const btn = document.getElementById('postBtn');
+  const txt = document.getElementById('postText');
 
-    function load() {
-      try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){ return []; }
-    }
-    function save(posts) {
-      localStorage.setItem(key, JSON.stringify(posts));
-    }
-    function render() {
-      const posts = load().reverse();
-      feed.innerHTML = posts.map((p, idx) => `
-        <div class="server-card">
-          <i class="fas fa-user"></i>
-          <h3>${p.poster || 'Unknown Survivor'}</h3>
-          <p style="color:#cd5c5c; margin:.5rem 0 1rem 0;">${new Date(p.ts).toLocaleString()}</p>
-          <div class="server-info"><p>${escapeHtml(p.content)}</p></div>
-          <button class="buy-btn" data-id="${p.id}"><i class="fas fa-trash"></i> Delete</button>
-        </div>
-      `).join('');
-      feed.querySelectorAll('button[data-id]').forEach(btn => {
-        btn.addEventListener('click', function(){
-          const id = this.getAttribute('data-id');
-          const posts = load().filter(p => p.id !== id);
-          save(posts); render();
-        });
-      });
-    }
-    function escapeHtml(str){
-      return (str||'').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-    }
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      const poster = document.getElementById('poster').value.trim();
-      const content = document.getElementById('content').value.trim();
-      if(!poster || !content) return;
-      const posts = load();
-      posts.push({ id: String(Date.now()) + Math.random().toString(36).slice(2), poster, content, ts: Date.now() });
-      save(posts);
-      form.reset();
-      if (typeof gtag !== 'undefined') {
-        gtag('event', 'submit', { 'event_category': 'Social', 'event_label': 'New_Post' });
-      }
-      render();
+  function load() {
+    feedEl.innerHTML = '';
+    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
+    items.reverse().forEach((p) => {
+      const card = document.createElement('div');
+      card.className = 'staff-card fade-in visible';
+      card.innerHTML = `
+        <div class="staff-avatar"><i class="fas fa-user"></i></div>
+        <h3>${p.author || 'Survivor'}</h3>
+        <div class="staff-role">${new Date(p.ts).toLocaleString()}</div>
+        <div class="staff-bio">${p.text}</div>
+        <button class="buy-btn" data-id="${p.id}">Delete</button>
+      `;
+      feedEl.appendChild(card);
     });
-    render();
-  })();
+  }
+
+  btn?.addEventListener('click', function() {
+    const text = txt.value.trim();
+    if (!text) return;
+    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
+    items.push({ id: Date.now(), ts: Date.now(), text });
+    localStorage.setItem(FEED_KEY, JSON.stringify(items));
+    txt.value='';
+    load();
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'submit', { 'event_category':'Social', 'event_label':'Post_Submit' });
+    }
+  });
+
+  feedEl.addEventListener('click', function(e) {
+    const b = e.target.closest('button[data-id]');
+    if (!b) return;
+    const id = Number(b.getAttribute('data-id'));
+    const items = JSON.parse(localStorage.getItem(FEED_KEY) || '[]').filter(i => i.id != id);
+    localStorage.setItem(FEED_KEY, JSON.stringify(items));
+    load();
+  });
+
+  load();
+})();
 </script>
-<a href="#top" class="fab"><i class="fas fa-chevron-up"></i></a>
+
+  <a href="#top" class="fab"><i class="fas fa-chevron-up"></i></a>
   <script src="assets/script.js"></script>
 </body>
 </html>
+
