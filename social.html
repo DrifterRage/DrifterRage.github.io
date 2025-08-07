@@ -4,8 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TwoRoadsDayZ — Community Feed</title>
+
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="assets/style.css" rel="stylesheet">
+
+  <!-- Optional: tiny visual for liked state -->
+  <style>
+    .buy-btn.liked { box-shadow: 0 0 0 2px rgba(255,80,80,.7) inset; }
+  </style>
+
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPFMB30C0P"></script>
   <script>
@@ -72,19 +79,19 @@
   <!-- Floating Action Button -->
   <a href="#top" class="fab"><i class="fas fa-chevron-up"></i></a>
 
-  <!-- Global site JS -->
+  <!-- Global site JS (your existing effects) -->
   <script src="assets/script.js"></script>
 
-  <!-- Firestore-powered Social Feed -->
+  <!-- Firestore-powered Social Feed (Auth + one-like-per-user) -->
   <script type="module">
     /************************************
-     * TwoRoadsDayZ - Firestore Social (with Auth)
-     * Works on GitHub Pages via CDN imports
+     * TwoRoadsDayZ - Firestore Social
+     * GitHub Pages friendly (CDN imports)
      ************************************/
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
     import {
       getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp,
-      doc, updateDoc, increment, deleteDoc, getDoc
+      doc, deleteDoc, getDoc, getCountFromServer, setDoc
     } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
     import {
       getAuth, signInAnonymously, onAuthStateChanged
@@ -103,7 +110,7 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    // 🔐 Anonymous Auth (gives each visitor a uid)
+    // 🔐 Anonymous Auth (each visitor gets a UID)
     const auth = getAuth();
     let currentUid = null;
     signInAnonymously(auth).catch(console.error);
@@ -122,7 +129,7 @@
       localStorage.setItem(USER_KEY, handleInput.value.trim());
     });
 
-    // rate limit to deter spam
+    // basic rate limit
     const LAST_POST_KEY = 'trd_last_post_ts';
     function rateLimited(ms=8000) {
       const last = Number(localStorage.getItem(LAST_POST_KEY) || 0);
@@ -139,6 +146,42 @@
       return ts?.seconds ? new Date(ts.seconds * 1000) : new Date();
     }
 
+    // --- Likes helpers: 1 like per user via subcollection ----------------
+    async function userHasLiked(postId) {
+      if (!currentUid) return false;
+      const likeRef = doc(db, 'posts', postId, 'likes', currentUid);
+      const snap = await getDoc(likeRef);
+      return snap.exists();
+    }
+
+    async function getLikeCount(postId) {
+      const likesCol = collection(db, 'posts', postId, 'likes');
+      const agg = await getCountFromServer(likesCol);
+      return agg.data().count || 0;
+    }
+
+    async function toggleLike(postId, btn) {
+      if (!currentUid) {
+        alert('Please wait a second for sign-in to complete…');
+        return;
+      }
+      const likeRef = doc(db, 'posts', postId, 'likes', currentUid);
+      const liked = await userHasLiked(postId);
+
+      if (liked) {
+        await deleteDoc(likeRef);
+      } else {
+        await setDoc(likeRef, { uid: currentUid, ts: serverTimestamp() });
+      }
+
+      const count = await getLikeCount(postId);
+      const cntEl = btn.querySelector('[data-like-count]');
+      if (cntEl) cntEl.textContent = String(count);
+      btn.dataset.liked = (!liked).toString();
+      btn.classList.toggle('liked', !liked);
+    }
+    // --------------------------------------------------------------------
+
     // Create post
     btn?.addEventListener('click', async () => {
       const text   = (txt?.value || '').trim();
@@ -149,12 +192,10 @@
       try {
         if (handleInput) localStorage.setItem(USER_KEY, author);
         await addDoc(collection(db, 'posts'), {
-          content: text,                 // standardized to `content` (not `text`)
+          content: text,
           author,
-          uid: currentUid,               // who posted
-          likes: 0,
-          commentsCount: 0,
-          createdAt: serverTimestamp()   // standardized to `createdAt` (for rules)
+          uid: currentUid,
+          createdAt: serverTimestamp()
         });
         if (txt) txt.value = '';
         await loadFeed();
@@ -200,9 +241,7 @@
       try {
         if (likeBtn) {
           const id = likeBtn.getAttribute('data-like');
-          await updateDoc(doc(db, 'posts', id), { likes: increment(1) });
-          const span = likeBtn.querySelector('[data-like-count]');
-          if (span) span.textContent = String(Number(span.textContent || '0') + 1);
+          await toggleLike(id, likeBtn);
           return;
         }
 
@@ -225,31 +264,22 @@
           if (!text) return;
 
           await addDoc(collection(db, 'posts', id, 'comments'), {
-            author,
-            text,
-            uid: currentUid,
-            likes: 0,
-            createdAt: serverTimestamp()
+            author, text, uid: currentUid, createdAt: serverTimestamp()
           });
-          await updateDoc(doc(db, 'posts', id), { commentsCount: increment(1) });
           if (tInput) tInput.value = '';
           await loadComments(id);
-
-          const cCount = document.querySelector(`button[data-toggle-comments="${id}"] [data-c-count]`);
-          if (cCount) cCount.textContent = String(Number(cCount.textContent || '0') + 1);
           return;
         }
 
         if (delBtn) {
           const id  = delBtn.getAttribute('data-del');
           const ref = doc(db, 'posts', id);
-          const myHandle = (localStorage.getItem(USER_KEY) || '').trim().toLowerCase();
 
+          // soft client check by handle (final enforcement is via security rules)
+          const myHandle = (localStorage.getItem(USER_KEY) || '').trim().toLowerCase();
           const snap = await getDoc(ref);
           const post = snap.exists() ? snap.data() : null;
           const owner = (post?.author || '').trim().toLowerCase();
-
-          // Soft client check by handle (final enforcement happens in rules)
           if (owner && myHandle !== owner) {
             const ok = confirm('Handle does not match post author. Delete anyway?');
             if (!ok) return;
@@ -277,9 +307,10 @@
         return;
       }
 
-      snap.forEach(docSnap => {
+      for (const docSnap of snap.docs) {
         const p = docSnap.data();
         const id = docSnap.id;
+
         const card = document.createElement('div');
         card.className = 'staff-card fade-in visible';
         card.innerHTML = `
@@ -290,10 +321,10 @@
 
           <div style="display:flex; gap:.5rem; margin-top:.75rem;">
             <button class="buy-btn" data-like="${id}">
-              👍 <span data-like-count>${Number(p.likes || 0)}</span>
+              👍 <span data-like-count>0</span>
             </button>
             <button class="buy-btn" data-toggle-comments="${id}">
-              Comments (<span data-c-count>${Number(p.commentsCount || 0)}</span>)
+              Comments
             </button>
             <button class="buy-btn" data-del="${id}">Delete</button>
           </div>
@@ -312,7 +343,19 @@
           </div>
         `;
         feedEl.appendChild(card);
-      });
+
+        // set like count & current user's like state
+        const likeBtn = card.querySelector('button[data-like]');
+        if (likeBtn) {
+          const count = await getLikeCount(id);
+          const cntEl = likeBtn.querySelector('[data-like-count]');
+          if (cntEl) cntEl.textContent = String(count);
+
+          const liked = await userHasLiked(id);
+          likeBtn.dataset.liked = liked.toString();
+          likeBtn.classList.toggle('liked', liked);
+        }
+      }
     }
 
     // initial load
