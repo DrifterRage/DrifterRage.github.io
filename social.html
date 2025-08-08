@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -298,6 +297,7 @@
       <h3 style="color: #dc1414; margin-bottom: 1rem;">
         <i class="fas fa-share"></i> Share This Post
       </h3>
+      <p style="color: #cd5c5c; margin-bottom: 1rem; font-size: 0.9rem;">Choose where to share this survival story:</p>
       <div class="share-options">
         <button class="share-btn" onclick="wastelandSocial.copyToClipboard()">
           <i class="fas fa-link"></i>
@@ -313,11 +313,39 @@
             <div style="font-size: 0.8rem; color: #cd5c5c;">Copy message for Discord server</div>
           </div>
         </button>
-        <button class="share-btn" onclick="wastelandSocial.shareToSocial()">
-          <i class="fas fa-share-alt"></i>
+        <button class="share-btn" onclick="wastelandSocial.shareToTwitter()">
+          <i class="fab fa-twitter"></i>
           <div>
-            <strong>Share to Social Media</strong>
-            <div style="font-size: 0.8rem; color: #cd5c5c;">Twitter, Facebook, etc.</div>
+            <strong>Share to Twitter/X</strong>
+            <div style="font-size: 0.8rem; color: #cd5c5c;">Post to your Twitter feed</div>
+          </div>
+        </button>
+        <button class="share-btn" onclick="wastelandSocial.shareToFacebook()">
+          <i class="fab fa-facebook"></i>
+          <div>
+            <strong>Share to Facebook</strong>
+            <div style="font-size: 0.8rem; color: #cd5c5c;">Post to your Facebook timeline</div>
+          </div>
+        </button>
+        <button class="share-btn" onclick="wastelandSocial.shareToReddit()">
+          <i class="fab fa-reddit"></i>
+          <div>
+            <strong>Share to Reddit</strong>
+            <div style="font-size: 0.8rem; color: #cd5c5c;">Post to r/dayz or gaming subreddits</div>
+          </div>
+        </button>
+        <button class="share-btn" onclick="wastelandSocial.shareToLinkedIn()">
+          <i class="fab fa-linkedin"></i>
+          <div>
+            <strong>Share to LinkedIn</strong>
+            <div style="font-size: 0.8rem; color: #cd5c5c;">Professional gaming content</div>
+          </div>
+        </button>
+        <button class="share-btn" onclick="wastelandSocial.shareToWhatsApp()">
+          <i class="fab fa-whatsapp"></i>
+          <div>
+            <strong>Share to WhatsApp</strong>
+            <div style="font-size: 0.8rem; color: #cd5c5c;">Send to friends and groups</div>
           </div>
         </button>
       </div>
@@ -849,17 +877,69 @@
         }
       }
 
-      shareToSocial() {
+      shareToTwitter() {
         const post = this.posts.find(p => p.id === this.currentSharePost);
         if (!post) return;
         
         const url = `${window.location.origin}${window.location.pathname}#post-${this.currentSharePost}`;
-        const text = `Check out this survival story from ${post.authorName} on TwoRoadsDayZ!`;
-        const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+        const text = `Check out this survival story from ${post.authorName} on TwoRoadsDayZ! 🧟‍♂️`;
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=DayZ,TwoRoadsDayZ,Survival`;
         
-        window.open(shareUrl, '_blank', 'width=600,height=400');
+        window.open(twitterUrl, '_blank', 'width=600,height=400');
         this.closeShareModal();
-        this.showNotification('🐦 Shared to social media!');
+        this.showNotification('🐦 Shared to Twitter/X!');
+      }
+
+      shareToFacebook() {
+        const post = this.posts.find(p => p.id === this.currentSharePost);
+        if (!post) return;
+        
+        const url = `${window.location.origin}${window.location.pathname}#post-${this.currentSharePost}`;
+        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(`Check out this survival story from ${post.authorName} on TwoRoadsDayZ!`)}`;
+        
+        window.open(facebookUrl, '_blank', 'width=600,height=400');
+        this.closeShareModal();
+        this.showNotification('📘 Shared to Facebook!');
+      }
+
+      shareToReddit() {
+        const post = this.posts.find(p => p.id === this.currentSharePost);
+        if (!post) return;
+        
+        const url = `${window.location.origin}${window.location.pathname}#post-${this.currentSharePost}`;
+        const title = `Survival story from ${post.authorName} - TwoRoadsDayZ`;
+        const redditUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+        
+        window.open(redditUrl, '_blank', 'width=600,height=400');
+        this.closeShareModal();
+        this.showNotification('🔴 Shared to Reddit!');
+      }
+
+      shareToLinkedIn() {
+        const post = this.posts.find(p => p.id === this.currentSharePost);
+        if (!post) return;
+        
+        const url = `${window.location.origin}${window.location.pathname}#post-${this.currentSharePost}`;
+        const title = `Gaming Community Content - TwoRoadsDayZ`;
+        const summary = `Check out this survival story from ${post.authorName} on our DayZ gaming community!`;
+        const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(summary)}`;
+        
+        window.open(linkedinUrl, '_blank', 'width=600,height=400');
+        this.closeShareModal();
+        this.showNotification('💼 Shared to LinkedIn!');
+      }
+
+      shareToWhatsApp() {
+        const post = this.posts.find(p => p.id === this.currentSharePost);
+        if (!post) return;
+        
+        const url = `${window.location.origin}${window.location.pathname}#post-${this.currentSharePost}`;
+        const text = `🎮 Check out this survival story from ${post.authorName} on TwoRoadsDayZ!\n\n"${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}"\n\n${url}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        
+        window.open(whatsappUrl, '_blank');
+        this.closeShareModal();
+        this.showNotification('💬 Shared to WhatsApp!');
       }
 
       deletePost(postId) {
