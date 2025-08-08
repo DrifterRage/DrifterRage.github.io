@@ -36,8 +36,16 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none;
     }
     .nav-links { display: flex; list-style: none; gap: 2rem; align-items: center; }
-    .nav-links a { color: #e0e0e0; text-decoration: none; font-weight: 600; transition: color .3s ease; }
+    .nav-links a { color: #e0e0e0; text-decoration: none; font-weight: 600; transition: color .3s ease; position: relative; }
     .nav-links a:hover { color: #dc1414; }
+
+    /* Navigation Icons with Badges */
+    .nav-icon { position: relative; }
+    .nav-badge {
+      position: absolute; top: -8px; right: -8px; background: #dc1414; color: white;
+      border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex;
+      align-items: center; justify-content: center; font-weight: bold;
+    }
 
     /* Main Layout */
     .main-container { display: grid; grid-template-columns: 300px 1fr 300px; gap: 2rem; max-width: 1400px; margin: 80px auto 0; padding: 2rem; }
@@ -47,10 +55,13 @@
     .sidebar h3 { color: #dc1414; margin-bottom: 1rem; font-size: 1.2rem; }
 
     /* User Profile Card */
-    .user-profile { text-align: center; margin-bottom: 2rem; }
-    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem; color: white; border: 3px solid rgba(220,20,20,.5); }
+    .user-profile { text-align: center; margin-bottom: 2rem; cursor: pointer; transition: all 0.3s ease; }
+    .user-profile:hover { transform: translateY(-2px); }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem; color: white; border: 3px solid rgba(220,20,20,.5); position: relative; }
+    .profile-avatar.online::after { content: ''; position: absolute; bottom: 5px; right: 5px; width: 15px; height: 15px; background: #00ff00; border-radius: 50%; border: 2px solid #000; }
     .profile-stats { display: flex; justify-content: space-around; margin-top: 1rem; }
-    .stat { text-align: center; }
+    .stat { text-align: center; cursor: pointer; transition: color 0.3s ease; }
+    .stat:hover { color: #dc1414; }
     .stat-number { font-size: 1.2rem; font-weight: bold; color: #dc1414; }
     .stat-label { font-size: 0.8rem; color: #cd5c5c; }
 
@@ -75,12 +86,15 @@
     .post { background: rgba(26,0,0,0.8); backdrop-filter: blur(20px); border-radius: 20px; padding: 2rem; border: 2px solid rgba(220,20,20,.3); margin-bottom: 2rem; transition: all .3s ease; }
     .post:hover { border-color: rgba(220,20,20,.6); box-shadow: 0 10px 30px rgba(220,20,20,.2); }
     .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-    .post-user { display: flex; align-items: center; gap: 1rem; }
+    .post-user { display: flex; align-items: center; gap: 1rem; cursor: pointer; }
+    .post-user:hover .post-info h4 { color: #dc1414; }
     .post-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white; }
-    .post-info h4 { color: #e0e0e0; margin-bottom: 0.2rem; }
+    .post-info h4 { color: #e0e0e0; margin-bottom: 0.2rem; transition: color 0.3s ease; }
     .post-time { color: #cd5c5c; font-size: 0.9rem; }
     .follow-btn { background: transparent; border: 2px solid #dc1414; color: #dc1414; padding: 0.3rem 1rem; border-radius: 15px; cursor: pointer; transition: all .3s ease; font-size: 0.8rem; }
     .follow-btn:hover, .follow-btn.following { background: #dc1414; color: white; }
+    .dm-btn { background: rgba(220,20,20,0.2); border: 2px solid rgba(220,20,20,.4); color: #dc1414; padding: 0.3rem 1rem; border-radius: 15px; cursor: pointer; transition: all .3s ease; font-size: 0.8rem; margin-left: 0.5rem; }
+    .dm-btn:hover { background: #dc1414; color: white; }
     .post-content { margin: 1rem 0; line-height: 1.6; }
     .post-media { margin: 1rem 0; border-radius: 15px; overflow: hidden; }
     .post-image { width: 100%; max-height: 400px; object-fit: cover; border-radius: 15px; }
@@ -91,165 +105,97 @@
 
     /* Comments Section */
     .comments-section {
-      margin-top: 1rem;
-      border-top: 1px solid rgba(220,20,20,.2);
-      padding-top: 1rem;
-      display: none;
+      margin-top: 1rem; border-top: 1px solid rgba(220,20,20,.2); padding-top: 1rem; display: none;
     }
-    .comments-section.show {
-      display: block;
-    }
-    .comment-form {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    .comment-input {
-      flex: 1;
-      background: rgba(10,0,0,0.6);
-      border: 1px solid rgba(220,20,20,.4);
-      border-radius: 5px;
-      padding: 0.5rem;
-      color: #e0e0e0;
-      font-size: 0.9rem;
-    }
-    .comment-input:focus {
-      outline: none;
-      border-color: #dc1414;
-    }
-    .comment-btn {
-      background: #dc1414;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .comment-btn:hover {
-      background: #b30000;
-    }
-    .comment {
-      background: rgba(26,0,0,0.4);
-      padding: 0.75rem;
-      border-radius: 8px;
-      margin-bottom: 0.5rem;
-      border-left: 3px solid #dc1414;
-    }
-    .comment-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.25rem;
-    }
-    .comment-author {
-      font-weight: bold;
-      color: #ff6b6b;
-      font-size: 0.9rem;
-    }
-    .comment-time {
-      color: #cd5c5c;
-      font-size: 0.8rem;
-    }
-    .comment-text {
-      color: #e0e0e0;
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
+    .comments-section.show { display: block; }
+    .comment-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .comment-input { flex: 1; background: rgba(10,0,0,0.6); border: 1px solid rgba(220,20,20,.4); border-radius: 5px; padding: 0.5rem; color: #e0e0e0; font-size: 0.9rem; }
+    .comment-input:focus { outline: none; border-color: #dc1414; }
+    .comment-btn { background: #dc1414; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; }
+    .comment-btn:hover { background: #b30000; }
+    .comment { background: rgba(26,0,0,0.4); padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid #dc1414; }
+    .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
+    .comment-author { font-weight: bold; color: #ff6b6b; font-size: 0.9rem; cursor: pointer; }
+    .comment-author:hover { color: #dc1414; }
+    .comment-time { color: #cd5c5c; font-size: 0.8rem; }
+    .comment-text { color: #e0e0e0; font-size: 0.9rem; line-height: 1.4; }
 
-    /* Share Modal */
-    .share-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      z-index: 10000;
-      display: none;
-      justify-content: center;
-      align-items: center;
+    /* Modals */
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+      z-index: 10000; display: none; justify-content: center; align-items: center;
     }
-    .share-modal.show {
-      display: flex;
+    .modal.show { display: flex; }
+    .modal-content {
+      background: rgba(26,0,0,0.95); padding: 2rem; border-radius: 15px; border: 2px solid #dc1414;
+      max-width: 90%; width: 500px; max-height: 80vh; overflow-y: auto;
     }
-    .share-content {
-      background: rgba(26,0,0,0.95);
-      padding: 2rem;
-      border-radius: 15px;
-      border: 2px solid #dc1414;
-      max-width: 400px;
-      width: 90%;
-    }
-    .share-options {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .share-btn {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: rgba(220,20,20,0.2);
-      border: 2px solid rgba(220,20,20,.4);
-      border-radius: 10px;
-      padding: 1rem;
-      cursor: pointer;
-      transition: all .3s ease;
-      color: #e0e0e0;
-      text-decoration: none;
-    }
-    .share-btn:hover {
-      background: rgba(220,20,20,0.4);
-      border-color: #dc1414;
-    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .modal-title { color: #dc1414; font-size: 1.5rem; }
+    .close-btn { background: none; border: none; color: #cd5c5c; font-size: 1.5rem; cursor: pointer; }
+    .close-btn:hover { color: #dc1414; }
+
+    /* Profile Modal */
+    .profile-modal-content { width: 600px; }
+    .profile-header { text-align: center; margin-bottom: 2rem; }
+    .profile-avatar-large { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 3rem; color: white; border: 4px solid rgba(220,20,20,.5); }
+    .profile-bio { background: rgba(10,0,0,0.6); border: 2px solid rgba(220,20,20,.4); border-radius: 10px; padding: 1rem; color: #e0e0e0; resize: vertical; min-height: 80px; width: 100%; margin: 1rem 0; }
+    .profile-tabs { display: flex; gap: 1rem; margin: 1rem 0; }
+    .tab-btn { background: rgba(220,20,20,0.2); border: 2px solid rgba(220,20,20,.4); color: #e0e0e0; padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer; transition: all .3s ease; }
+    .tab-btn.active, .tab-btn:hover { background: #dc1414; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* DM Modal */
+    .dm-modal-content { width: 700px; height: 600px; padding: 0; display: flex; flex-direction: column; }
+    .dm-header { padding: 1rem; border-bottom: 2px solid rgba(220,20,20,.3); }
+    .dm-messages { flex: 1; padding: 1rem; overflow-y: auto; max-height: 400px; }
+    .dm-input-area { padding: 1rem; border-top: 2px solid rgba(220,20,20,.3); display: flex; gap: 0.5rem; }
+    .dm-message { margin-bottom: 1rem; }
+    .dm-message.own { text-align: right; }
+    .dm-message-content { display: inline-block; background: rgba(26,0,0,0.8); padding: 0.75rem; border-radius: 10px; max-width: 70%; }
+    .dm-message.own .dm-message-content { background: #dc1414; }
+    .dm-message-author { font-size: 0.8rem; color: #cd5c5c; margin-bottom: 0.25rem; }
+    .dm-message-text { color: #e0e0e0; }
+    .dm-message-time { font-size: 0.7rem; color: #cd5c5c; margin-top: 0.25rem; }
+
+    /* Clan Modal */
+    .clan-modal-content { width: 700px; }
+    .clan-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+    .clan-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; border: 3px solid rgba(220,20,20,.5); }
+    .clan-member { display: flex; align-items: center; gap: 1rem; padding: 0.75rem; background: rgba(26,0,0,0.4); border-radius: 10px; margin-bottom: 0.5rem; }
+    .clan-member-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white; }
+    .clan-member-info { flex: 1; }
+    .clan-member-name { color: #e0e0e0; font-weight: 600; }
+    .clan-member-role { color: #cd5c5c; font-size: 0.9rem; }
+
+    /* Clans Section */
+    .clan-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(26,0,0,0.4); border-radius: 10px; margin-bottom: 1rem; cursor: pointer; transition: all 0.3s ease; }
+    .clan-item:hover { background: rgba(26,0,0,0.6); border: 1px solid rgba(220,20,20,.4); }
+    .clan-item-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; }
+    .clan-item-info { flex: 1; }
+    .clan-item-name { color: #e0e0e0; font-weight: 600; margin-bottom: 0.25rem; }
+    .clan-item-members { color: #cd5c5c; font-size: 0.9rem; }
 
     /* Notification */
-    .notification {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: #dc1414;
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(220,20,20,0.3);
-      z-index: 10001;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-    }
-    .notification.show {
-      transform: translateX(0);
-    }
+    .notification { position: fixed; top: 80px; right: 20px; background: #dc1414; color: white; padding: 1rem 1.5rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(220,20,20,0.3); z-index: 10001; transform: translateX(100%); transition: transform 0.3s ease; }
+    .notification.show { transform: translateX(0); }
 
     /* Trending Section */
-    .trending-item { padding: 1rem 0; border-bottom: 1px solid rgba(220,20,20,.2); }
+    .trending-item { padding: 1rem 0; border-bottom: 1px solid rgba(220,20,20,.2); cursor: pointer; transition: all 0.3s ease; }
+    .trending-item:hover { background: rgba(220,20,20,0.1); border-radius: 5px; }
     .trending-item:last-child { border-bottom: none; }
     .trending-tag { color: #dc1414; font-weight: bold; }
     .trending-count { color: #cd5c5c; font-size: 0.9rem; }
 
-    /* Suggestions */
-    .suggestion-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid rgba(220,20,20,.2); }
-    .suggestion-item:last-child { border-bottom: none; }
-    .suggestion-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white; }
-    .suggestion-info { flex: 1; }
-    .suggestion-name { color: #e0e0e0; font-weight: 600; }
-    .suggestion-handle { color: #cd5c5c; font-size: 0.9rem; }
-    .suggestion-follow { background: #dc1414; color: white; border: none; padding: 0.3rem 1rem; border-radius: 15px; cursor: pointer; font-size: 0.8rem; }
+    /* Quick Actions */
+    .quick-actions { margin-bottom: 2rem; }
+    .quick-action-btn { width: 100%; background: rgba(220,20,20,0.2); border: 2px solid rgba(220,20,20,.4); color: #e0e0e0; padding: 0.75rem; border-radius: 10px; cursor: pointer; transition: all .3s ease; margin-bottom: 0.5rem; text-align: left; display: flex; align-items: center; gap: 0.5rem; }
+    .quick-action-btn:hover { background: rgba(220,20,20,0.4); border-color: #dc1414; }
 
     /* Responsive */
-    @media (max-width: 1200px) {
-      .main-container { grid-template-columns: 1fr; gap: 1rem; }
-      .sidebar { position: static; }
-    }
-
-    @media (max-width: 768px) {
-      .nav-container { flex-direction: column; gap: 1rem; }
-      .main-container { padding: 1rem; }
-      .composer-actions { flex-direction: column; gap: 1rem; align-items: stretch; }
-      .media-upload { justify-content: center; }
-    }
+    @media (max-width: 1200px) { .main-container { grid-template-columns: 1fr; gap: 1rem; } .sidebar { position: static; } }
+    @media (max-width: 768px) { .nav-container { flex-direction: column; gap: 1rem; } .main-container { padding: 1rem; } .composer-actions { flex-direction: column; gap: 1rem; align-items: stretch; } .media-upload { justify-content: center; } }
 
     /* Animations */
     .fade-in { opacity: 0; transform: translateY(20px); animation: fadeIn 0.6s ease forwards; }
@@ -287,71 +233,153 @@
         <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
         <li><a href="social.html"><i class="fas fa-users"></i> Community</a></li>
         <li><a href="media.html"><i class="fas fa-play"></i> Media</a></li>
+        <li class="nav-icon"><a href="#" onclick="wastelandSocial.openMessages()"><i class="fas fa-envelope"></i> <span class="nav-badge" id="dmBadge" style="display: none;">0</span></a></li>
       </ul>
     </div>
   </nav>
 
-  <!-- Share Modal -->
-  <div class="share-modal" id="shareModal">
-    <div class="share-content">
-      <h3 style="color: #dc1414; margin-bottom: 1rem;">
-        <i class="fas fa-share"></i> Share This Post
-      </h3>
-      <p style="color: #cd5c5c; margin-bottom: 1rem; font-size: 0.9rem;">Choose where to share this survival story:</p>
-      <div class="share-options">
-        <button class="share-btn" onclick="wastelandSocial.copyToClipboard()">
-          <i class="fas fa-link"></i>
-          <div>
-            <strong>Copy Link</strong>
-            <div style="font-size: 0.8rem; color: #cd5c5c;">Share direct link to this post</div>
+  <!-- All Modals -->
+  
+  <!-- Profile Modal -->
+  <div class="modal" id="profileModal">
+    <div class="modal-content profile-modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="profileModalTitle">User Profile</h2>
+        <button class="close-btn" onclick="wastelandSocial.closeModal('profileModal')">&times;</button>
+      </div>
+      <div class="profile-header">
+        <div class="profile-avatar-large" id="profileAvatarLarge">
+          <i class="fas fa-user"></i>
+        </div>
+        <h3 id="profileName">Survivor</h3>
+        <p id="profileHandle">@survivor</p>
+        <div class="profile-stats">
+          <div class="stat">
+            <div class="stat-number" id="profilePosts">0</div>
+            <div class="stat-label">Posts</div>
           </div>
-        </button>
-        <button class="share-btn" onclick="wastelandSocial.shareToDiscord()">
-          <i class="fab fa-discord"></i>
-          <div>
-            <strong>Share to Discord</strong>
-            <div style="font-size: 0.8rem; color: #cd5c5c;">Copy message for Discord server</div>
+          <div class="stat">
+            <div class="stat-number" id="profileFollowers">0</div>
+            <div class="stat-label">Followers</div>
           </div>
-        </button>
-        <button class="share-btn" onclick="wastelandSocial.shareToTwitter()">
-          <i class="fab fa-twitter"></i>
-          <div>
-            <strong>Share to Twitter/X</strong>
-            <div style="font-size: 0.8rem; color: #cd5c5c;">Post to your Twitter feed</div>
+          <div class="stat">
+            <div class="stat-number" id="profileFollowing">0</div>
+            <div class="stat-label">Following</div>
           </div>
-        </button>
-        <button class="share-btn" onclick="wastelandSocial.shareToFacebook()">
-          <i class="fab fa-facebook"></i>
-          <div>
-            <strong>Share to Facebook</strong>
-            <div style="font-size: 0.8rem; color: #cd5c5c;">Post to your Facebook timeline</div>
-          </div>
-        </button>
-        <button class="share-btn" onclick="wastelandSocial.shareToReddit()">
-          <i class="fab fa-reddit"></i>
-          <div>
-            <strong>Share to Reddit</strong>
-            <div style="font-size: 0.8rem; color: #cd5c5c;">Post to r/dayz or gaming subreddits</div>
-          </div>
-        </button>
-        <button class="share-btn" onclick="wastelandSocial.shareToLinkedIn()">
-          <i class="fab fa-linkedin"></i>
-          <div>
-            <strong>Share to LinkedIn</strong>
-            <div style="font-size: 0.8rem; color: #cd5c5c;">Professional gaming content</div>
-          </div>
-        </button>
-        <button class="share-btn" onclick="wastelandSocial.shareToWhatsApp()">
-          <i class="fab fa-whatsapp"></i>
-          <div>
-            <strong>Share to WhatsApp</strong>
-            <div style="font-size: 0.8rem; color: #cd5c5c;">Send to friends and groups</div>
-          </div>
+        </div>
+        <textarea id="profileBio" class="profile-bio" placeholder="Tell other survivors about yourself..."></textarea>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+          <button class="post-btn" onclick="wastelandSocial.saveProfile()">
+            <i class="fas fa-save"></i> Save Profile
+          </button>
+          <button class="dm-btn" id="dmProfileBtn" onclick="wastelandSocial.openDMWithUser()">
+            <i class="fas fa-envelope"></i> Message
+          </button>
+        </div>
+      </div>
+      <div class="profile-tabs">
+        <button class="tab-btn active" onclick="wastelandSocial.switchTab('posts')">Posts</button>
+        <button class="tab-btn" onclick="wastelandSocial.switchTab('followers')">Followers</button>
+        <button class="tab-btn" onclick="wastelandSocial.switchTab('following')">Following</button>
+      </div>
+      <div class="tab-content active" id="postsTab">
+        <div id="userPosts">Loading posts...</div>
+      </div>
+      <div class="tab-content" id="followersTab">
+        <div id="userFollowers">Loading followers...</div>
+      </div>
+      <div class="tab-content" id="followingTab">
+        <div id="userFollowing">Loading following...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DM Modal -->
+  <div class="modal" id="dmModal">
+    <div class="modal-content dm-modal-content">
+      <div class="dm-header">
+        <div class="modal-header">
+          <h2 class="modal-title" id="dmModalTitle">Messages</h2>
+          <button class="close-btn" onclick="wastelandSocial.closeModal('dmModal')">&times;</button>
+        </div>
+      </div>
+      <div class="dm-messages" id="dmMessages">
+        <div style="text-align: center; color: #cd5c5c; padding: 2rem;">
+          Select a conversation or start a new one
+        </div>
+      </div>
+      <div class="dm-input-area">
+        <input type="text" id="dmInput" placeholder="Type a message..." style="flex: 1; background: rgba(10,0,0,0.6); border: 1px solid rgba(220,20,20,.4); border-radius: 5px; padding: 0.75rem; color: #e0e0e0;">
+        <button class="post-btn" onclick="wastelandSocial.sendMessage()">
+          <i class="fas fa-paper-plane"></i>
         </button>
       </div>
-      <button class="post-btn" onclick="wastelandSocial.closeShareModal()" style="margin-top: 1rem; width: 100%;">
-        Close
-      </button>
+    </div>
+  </div>
+
+  <!-- Clan Modal -->
+  <div class="modal" id="clanModal">
+    <div class="modal-content clan-modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="clanModalTitle">Clan Details</h2>
+        <button class="close-btn" onclick="wastelandSocial.closeModal('clanModal')">&times;</button>
+      </div>
+      <div class="clan-header">
+        <div class="clan-avatar" id="clanAvatar">🏴</div>
+        <div>
+          <h3 id="clanName">Clan Name</h3>
+          <p id="clanDescription">Clan description goes here</p>
+          <div style="margin-top: 0.5rem;">
+            <button class="post-btn" id="joinClanBtn" onclick="wastelandSocial.joinClan()">
+              <i class="fas fa-user-plus"></i> Join Clan
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="profile-tabs">
+        <button class="tab-btn active" onclick="wastelandSocial.switchClanTab('members')">Members</button>
+        <button class="tab-btn" onclick="wastelandSocial.switchClanTab('chat')">Chat</button>
+      </div>
+      <div class="tab-content active" id="clanMembersTab">
+        <div id="clanMembers">Loading members...</div>
+      </div>
+      <div class="tab-content" id="clanChatTab">
+        <div id="clanChat">Loading chat...</div>
+        <div class="dm-input-area">
+          <input type="text" id="clanChatInput" placeholder="Chat with your clan..." style="flex: 1; background: rgba(10,0,0,0.6); border: 1px solid rgba(220,20,20,.4); border-radius: 5px; padding: 0.75rem; color: #e0e0e0;">
+          <button class="post-btn" onclick="wastelandSocial.sendClanMessage()">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div class="modal" id="shareModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Share This Post</h2>
+        <button class="close-btn" onclick="wastelandSocial.closeModal('shareModal')">&times;</button>
+      </div>
+      <p style="color: #cd5c5c; margin-bottom: 1rem; font-size: 0.9rem;">Choose where to share this survival story:</p>
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <button class="quick-action-btn" onclick="wastelandSocial.copyToClipboard()">
+          <i class="fas fa-link"></i> Copy Link
+        </button>
+        <button class="quick-action-btn" onclick="wastelandSocial.shareToDiscord()">
+          <i class="fab fa-discord"></i> Share to Discord
+        </button>
+        <button class="quick-action-btn" onclick="wastelandSocial.shareToTwitter()">
+          <i class="fab fa-twitter"></i> Share to Twitter/X
+        </button>
+        <button class="quick-action-btn" onclick="wastelandSocial.shareToFacebook()">
+          <i class="fab fa-facebook"></i> Share to Facebook
+        </button>
+        <button class="quick-action-btn" onclick="wastelandSocial.shareToReddit()">
+          <i class="fab fa-reddit"></i> Share to Reddit
+        </button>
+      </div>
     </div>
   </div>
 
@@ -363,29 +391,43 @@
     <!-- Left Sidebar -->
     <div class="sidebar">
       <!-- User Profile -->
-      <div class="user-profile">
-        <div class="profile-avatar" id="userAvatar">
+      <div class="user-profile" onclick="wastelandSocial.openProfile(wastelandSocial.currentUser.handle)">
+        <div class="profile-avatar online" id="userAvatar">
           <i class="fas fa-user"></i>
         </div>
         <h4 id="userName">Survivor</h4>
         <p id="userHandle">@survivor</p>
         <div class="profile-stats">
-          <div class="stat">
+          <div class="stat" onclick="event.stopPropagation(); wastelandSocial.openProfile(wastelandSocial.currentUser.handle)">
             <div class="stat-number" id="postCount">0</div>
             <div class="stat-label">Posts</div>
           </div>
-          <div class="stat">
+          <div class="stat" onclick="event.stopPropagation(); wastelandSocial.openProfile(wastelandSocial.currentUser.handle)">
             <div class="stat-number" id="followerCount">0</div>
             <div class="stat-label">Followers</div>
           </div>
-          <div class="stat">
+          <div class="stat" onclick="event.stopPropagation(); wastelandSocial.openProfile(wastelandSocial.currentUser.handle)">
             <div class="stat-number" id="followingCount">0</div>
             <div class="stat-label">Following</div>
           </div>
         </div>
       </div>
 
-      <!-- Quick Stats -->
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+        <button class="quick-action-btn" onclick="wastelandSocial.openMessages()">
+          <i class="fas fa-envelope"></i> Messages <span id="dmCount">(0)</span>
+        </button>
+        <button class="quick-action-btn" onclick="wastelandSocial.createClan()">
+          <i class="fas fa-users"></i> Create Clan
+        </button>
+        <button class="quick-action-btn" onclick="wastelandSocial.findPlayers()">
+          <i class="fas fa-search"></i> Find Players
+        </button>
+      </div>
+
+      <!-- Server Stats -->
       <div>
         <h3><i class="fas fa-chart-line"></i> Server Stats</h3>
         <div class="trending-item">
@@ -398,7 +440,7 @@
         </div>
         <div class="trending-item">
           <div class="trending-tag">Active Clans</div>
-          <div class="trending-count">--</div>
+          <div class="trending-count" id="activeClanCount">0</div>
         </div>
       </div>
     </div>
@@ -443,18 +485,35 @@
       <!-- Trending -->
       <div>
         <h3><i class="fas fa-fire"></i> Trending</h3>
-        <div class="trending-item">
-          <div class="trending-tag">No trending topics yet</div>
-          <div class="trending-count">Start posting with hashtags!</div>
+        <div id="trendingContainer">
+          <div class="trending-item">
+            <div class="trending-tag">No trending topics yet</div>
+            <div class="trending-count">Start posting with hashtags!</div>
+          </div>
         </div>
       </div>
 
+      <!-- Active Clans -->
       <div style="margin-top: 2rem;">
-        <h3><i class="fas fa-users"></i> Who to Follow</h3>
-        <div class="suggestion-item">
-          <div class="suggestion-info" style="text-align: center; color: #cd5c5c;">
-            <div class="suggestion-name">No suggestions yet</div>
-            <div class="suggestion-handle">Start following other survivors!</div>
+        <h3><i class="fas fa-shield-alt"></i> Active Clans</h3>
+        <div id="clansContainer">
+          <div class="clan-item" onclick="wastelandSocial.createClan()">
+            <div class="clan-item-avatar">+</div>
+            <div class="clan-item-info">
+              <div class="clan-item-name">Create New Clan</div>
+              <div class="clan-item-members">Start your own survival group</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Who to Follow -->
+      <div style="margin-top: 2rem;">
+        <h3><i class="fas fa-users"></i> Active Survivors</h3>
+        <div id="suggestionsContainer">
+          <div style="text-align: center; color: #cd5c5c; padding: 1rem;">
+            <div>No other survivors online</div>
+            <div style="font-size: 0.8rem;">Invite friends to join!</div>
           </div>
         </div>
       </div>
@@ -462,17 +521,26 @@
   </div>
 
   <script>
-    // Enhanced Social Media JavaScript with Working Comments & Sharing
+    // Advanced Social Media Platform with Profiles, DMs, and Clans
     class WastelandSocial {
       constructor() {
         this.posts = JSON.parse(localStorage.getItem('trd_posts') || '[]');
         this.currentUser = JSON.parse(localStorage.getItem('trd_user') || '{}');
         this.following = JSON.parse(localStorage.getItem('trd_following') || '[]');
+        this.profiles = JSON.parse(localStorage.getItem('trd_profiles') || '{}');
+        this.messages = JSON.parse(localStorage.getItem('trd_messages') || '{}');
+        this.clans = JSON.parse(localStorage.getItem('trd_clans') || '[]');
         this.currentSharePost = null;
+        this.currentDMUser = null;
+        this.currentProfileUser = null;
+        this.currentClan = null;
+        
         this.initializeUser();
         this.setupEventListeners();
         this.loadFeed();
         this.updateStats();
+        this.updateClans();
+        this.loadTrending();
       }
 
       initializeUser() {
@@ -481,11 +549,24 @@
             handle: 'Survivor_' + Math.floor(Math.random() * 9999),
             name: 'Survivor',
             avatar: '🎯',
-            joinDate: new Date().toISOString()
+            bio: '',
+            joinDate: new Date().toISOString(),
+            lastSeen: new Date().toISOString()
           };
           localStorage.setItem('trd_user', JSON.stringify(this.currentUser));
         }
         
+        // Initialize profile if not exists
+        if (!this.profiles[this.currentUser.handle]) {
+          this.profiles[this.currentUser.handle] = {
+            ...this.currentUser,
+            followers: [],
+            following: this.following
+          };
+          localStorage.setItem('trd_profiles', JSON.stringify(this.profiles));
+        }
+        
+        // Update UI
         document.getElementById('userName').textContent = this.currentUser.name;
         document.getElementById('userHandle').textContent = '@' + this.currentUser.handle;
         document.getElementById('handleInput').value = this.currentUser.handle;
@@ -511,14 +592,505 @@
           document.getElementById('userName').textContent = this.currentUser.name;
         });
 
-        // Share modal close on outside click
-        document.getElementById('shareModal').addEventListener('click', (e) => {
-          if (e.target.id === 'shareModal') {
-            this.closeShareModal();
+        // Modal close on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+              this.closeModal(modal.id);
+            }
+          });
+        });
+
+        // DM input enter key
+        document.getElementById('dmInput').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.sendMessage();
+          }
+        });
+
+        // Clan chat input enter key
+        document.getElementById('clanChatInput').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.sendClanMessage();
           }
         });
       }
 
+      // === USER PROFILES ===
+      openProfile(userHandle) {
+        this.currentProfileUser = userHandle;
+        const user = this.profiles[userHandle] || { handle: userHandle, name: userHandle, bio: '', followers: [], following: [] };
+        
+        document.getElementById('profileModalTitle').textContent = `${user.name}'s Profile`;
+        document.getElementById('profileName').textContent = user.name || userHandle;
+        document.getElementById('profileHandle').textContent = '@' + userHandle;
+        document.getElementById('profileBio').value = user.bio || '';
+        
+        // Show/hide DM button
+        const dmBtn = document.getElementById('dmProfileBtn');
+        if (userHandle === this.currentUser.handle) {
+          dmBtn.style.display = 'none';
+          document.getElementById('profileBio').disabled = false;
+        } else {
+          dmBtn.style.display = 'inline-block';
+          document.getElementById('profileBio').disabled = true;
+        }
+        
+        // Load user stats
+        const userPosts = this.posts.filter(p => p.author === userHandle);
+        document.getElementById('profilePosts').textContent = userPosts.length;
+        document.getElementById('profileFollowers').textContent = user.followers?.length || 0;
+        document.getElementById('profileFollowing').textContent = user.following?.length || 0;
+        
+        // Load posts tab
+        this.loadUserPosts(userHandle);
+        
+        this.openModal('profileModal');
+      }
+
+      loadUserPosts(userHandle) {
+        const userPosts = this.posts.filter(p => p.author === userHandle);
+        const postsContainer = document.getElementById('userPosts');
+        
+        if (userPosts.length === 0) {
+          postsContainer.innerHTML = '<div style="text-align: center; color: #cd5c5c; padding: 2rem;">No posts yet</div>';
+          return;
+        }
+        
+        postsContainer.innerHTML = userPosts.map(post => `
+          <div style="background: rgba(26,0,0,0.4); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+            <div style="color: #cd5c5c; font-size: 0.9rem; margin-bottom: 0.5rem;">${this.timeAgo(new Date(post.timestamp))}</div>
+            <div style="color: #e0e0e0;">${this.formatContent(post.content)}</div>
+            <div style="color: #cd5c5c; font-size: 0.8rem; margin-top: 0.5rem;">
+              ❤️ ${post.likes} • 💬 ${post.comments?.length || 0}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      saveProfile() {
+        const bio = document.getElementById('profileBio').value.trim();
+        this.currentUser.bio = bio;
+        this.profiles[this.currentUser.handle] = {
+          ...this.profiles[this.currentUser.handle],
+          ...this.currentUser
+        };
+        
+        localStorage.setItem('trd_user', JSON.stringify(this.currentUser));
+        localStorage.setItem('trd_profiles', JSON.stringify(this.profiles));
+        
+        this.showNotification('📋 Profile updated!');
+      }
+
+      switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tab + 'Tab').classList.add('active');
+        
+        if (tab === 'followers') this.loadFollowers();
+        if (tab === 'following') this.loadFollowing();
+      }
+
+      loadFollowers() {
+        const user = this.profiles[this.currentProfileUser];
+        const followersContainer = document.getElementById('userFollowers');
+        
+        if (!user?.followers?.length) {
+          followersContainer.innerHTML = '<div style="text-align: center; color: #cd5c5c; padding: 2rem;">No followers yet</div>';
+          return;
+        }
+        
+        followersContainer.innerHTML = user.followers.map(handle => {
+          const follower = this.profiles[handle] || { handle, name: handle };
+          return `
+            <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; background: rgba(26,0,0,0.4); border-radius: 10px; margin-bottom: 0.5rem; cursor: pointer;" onclick="wastelandSocial.openProfile('${handle}')">
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white;">
+                ${follower.name.charAt(0)}
+              </div>
+              <div>
+                <div style="color: #e0e0e0; font-weight: 600;">${follower.name}</div>
+                <div style="color: #cd5c5c; font-size: 0.9rem;">@${handle}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      loadFollowing() {
+        const user = this.profiles[this.currentProfileUser];
+        const followingContainer = document.getElementById('userFollowing');
+        
+        if (!user?.following?.length) {
+          followingContainer.innerHTML = '<div style="text-align: center; color: #cd5c5c; padding: 2rem;">Not following anyone yet</div>';
+          return;
+        }
+        
+        followingContainer.innerHTML = user.following.map(handle => {
+          const followed = this.profiles[handle] || { handle, name: handle };
+          return `
+            <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; background: rgba(26,0,0,0.4); border-radius: 10px; margin-bottom: 0.5rem; cursor: pointer;" onclick="wastelandSocial.openProfile('${handle}')">
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white;">
+                ${followed.name.charAt(0)}
+              </div>
+              <div>
+                <div style="color: #e0e0e0; font-weight: 600;">${followed.name}</div>
+                <div style="color: #cd5c5c; font-size: 0.9rem;">@${handle}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // === DIRECT MESSAGING ===
+      openMessages() {
+        this.openModal('dmModal');
+        this.loadConversations();
+      }
+
+      openDMWithUser() {
+        this.currentDMUser = this.currentProfileUser;
+        this.closeModal('profileModal');
+        this.openModal('dmModal');
+        this.loadConversation(this.currentDMUser);
+      }
+
+      loadConversations() {
+        const dmMessages = document.getElementById('dmMessages');
+        const conversations = Object.keys(this.messages);
+        
+        if (conversations.length === 0) {
+          dmMessages.innerHTML = '<div style="text-align: center; color: #cd5c5c; padding: 2rem;">No conversations yet<br><small>Click "Message" on someone\'s profile to start chatting</small></div>';
+          return;
+        }
+        
+        dmMessages.innerHTML = conversations.map(userHandle => {
+          const lastMessage = this.messages[userHandle]?.slice(-1)[0];
+          const user = this.profiles[userHandle] || { name: userHandle };
+          
+          return `
+            <div style="padding: 1rem; background: rgba(26,0,0,0.4); border-radius: 10px; margin-bottom: 0.5rem; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease;" 
+                 onclick="wastelandSocial.loadConversation('${userHandle}')"
+                 onmouseover="this.style.borderColor='rgba(220,20,20,0.4)'"
+                 onmouseout="this.style.borderColor='transparent'">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
+                  ${user.name.charAt(0)}
+                </div>
+                <div style="flex: 1;">
+                  <div style="color: #e0e0e0; font-weight: 600; margin-bottom: 0.25rem;">${user.name}</div>
+                  <div style="color: #cd5c5c; font-size: 0.9rem;">${lastMessage ? lastMessage.text.substring(0, 50) + (lastMessage.text.length > 50 ? '...' : '') : 'No messages yet'}</div>
+                </div>
+                <div style="color: #cd5c5c; font-size: 0.8rem;">
+                  ${lastMessage ? this.timeAgo(new Date(lastMessage.timestamp)) : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      loadConversation(userHandle) {
+        this.currentDMUser = userHandle;
+        const user = this.profiles[userHandle] || { name: userHandle };
+        
+        document.getElementById('dmModalTitle').textContent = `Chat with ${user.name}`;
+        
+        const conversation = this.messages[userHandle] || [];
+        const dmMessages = document.getElementById('dmMessages');
+        
+        if (conversation.length === 0) {
+          dmMessages.innerHTML = `
+            <div style="text-align: center; color: #cd5c5c; padding: 2rem;">
+              <h4>Start a conversation with ${user.name}</h4>
+              <p>Send them a message to begin chatting!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        dmMessages.innerHTML = conversation.map(msg => `
+          <div class="dm-message ${msg.sender === this.currentUser.handle ? 'own' : ''}">
+            <div class="dm-message-content">
+              ${msg.sender !== this.currentUser.handle ? `<div class="dm-message-author">${msg.senderName}</div>` : ''}
+              <div class="dm-message-text">${this.formatContent(msg.text)}</div>
+              <div class="dm-message-time">${this.timeAgo(new Date(msg.timestamp))}</div>
+            </div>
+          </div>
+        `).join('');
+        
+        // Scroll to bottom
+        dmMessages.scrollTop = dmMessages.scrollHeight;
+      }
+
+      sendMessage() {
+        const input = document.getElementById('dmInput');
+        const text = input.value.trim();
+        
+        if (!text || !this.currentDMUser) return;
+        
+        const message = {
+          id: Date.now(),
+          sender: this.currentUser.handle,
+          senderName: this.currentUser.name,
+          text: text,
+          timestamp: new Date().toISOString()
+        };
+        
+        if (!this.messages[this.currentDMUser]) {
+          this.messages[this.currentDMUser] = [];
+        }
+        
+        this.messages[this.currentDMUser].push(message);
+        localStorage.setItem('trd_messages', JSON.stringify(this.messages));
+        
+        input.value = '';
+        this.loadConversation(this.currentDMUser);
+        this.showNotification('💬 Message sent!');
+        
+        // Update DM count
+        this.updateDMCount();
+      }
+
+      updateDMCount() {
+        const totalMessages = Object.values(this.messages).reduce((sum, conv) => sum + conv.length, 0);
+        document.getElementById('dmCount').textContent = `(${totalMessages})`;
+        
+        const badge = document.getElementById('dmBadge');
+        if (totalMessages > 0) {
+          badge.textContent = totalMessages;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+
+      // === CLAN FUNCTIONALITY ===
+      createClan() {
+        const clanName = prompt('Enter clan name:');
+        if (!clanName) return;
+        
+        const clan = {
+          id: Date.now(),
+          name: clanName.trim(),
+          description: `${clanName} - A survivor clan`,
+          leader: this.currentUser.handle,
+          members: [{
+            handle: this.currentUser.handle,
+            name: this.currentUser.name,
+            role: 'Leader',
+            joinDate: new Date().toISOString()
+          }],
+          chat: [],
+          createdAt: new Date().toISOString()
+        };
+        
+        this.clans.push(clan);
+        localStorage.setItem('trd_clans', JSON.stringify(this.clans));
+        
+        this.updateClans();
+        this.showNotification('🏴 Clan created successfully!');
+      }
+
+      updateClans() {
+        const clansContainer = document.getElementById('clansContainer');
+        const createClanHTML = `
+          <div class="clan-item" onclick="wastelandSocial.createClan()">
+            <div class="clan-item-avatar">+</div>
+            <div class="clan-item-info">
+              <div class="clan-item-name">Create New Clan</div>
+              <div class="clan-item-members">Start your own survival group</div>
+            </div>
+          </div>
+        `;
+        
+        if (this.clans.length === 0) {
+          clansContainer.innerHTML = createClanHTML;
+          document.getElementById('activeClanCount').textContent = '0';
+          return;
+        }
+        
+        const clansHTML = this.clans.map(clan => `
+          <div class="clan-item" onclick="wastelandSocial.openClan(${clan.id})">
+            <div class="clan-item-avatar">🏴</div>
+            <div class="clan-item-info">
+              <div class="clan-item-name">${clan.name}</div>
+              <div class="clan-item-members">${clan.members.length} members</div>
+            </div>
+          </div>
+        `).join('');
+        
+        clansContainer.innerHTML = createClanHTML + clansHTML;
+        document.getElementById('activeClanCount').textContent = this.clans.length;
+      }
+
+      openClan(clanId) {
+        this.currentClan = this.clans.find(c => c.id === clanId);
+        if (!this.currentClan) return;
+        
+        document.getElementById('clanModalTitle').textContent = this.currentClan.name;
+        document.getElementById('clanName').textContent = this.currentClan.name;
+        document.getElementById('clanDescription').textContent = this.currentClan.description;
+        
+        // Check if user is member
+        const isMember = this.currentClan.members.some(m => m.handle === this.currentUser.handle);
+        const joinBtn = document.getElementById('joinClanBtn');
+        
+        if (isMember) {
+          joinBtn.textContent = '✓ Member';
+          joinBtn.disabled = true;
+          joinBtn.style.background = '#666';
+        } else {
+          joinBtn.textContent = '+ Join Clan';
+          joinBtn.disabled = false;
+          joinBtn.style.background = '';
+        }
+        
+        this.loadClanMembers();
+        this.openModal('clanModal');
+      }
+
+      joinClan() {
+        if (!this.currentClan) return;
+        
+        const isMember = this.currentClan.members.some(m => m.handle === this.currentUser.handle);
+        if (isMember) return;
+        
+        this.currentClan.members.push({
+          handle: this.currentUser.handle,
+          name: this.currentUser.name,
+          role: 'Member',
+          joinDate: new Date().toISOString()
+        });
+        
+        // Update clan in storage
+        const clanIndex = this.clans.findIndex(c => c.id === this.currentClan.id);
+        this.clans[clanIndex] = this.currentClan;
+        localStorage.setItem('trd_clans', JSON.stringify(this.clans));
+        
+        this.loadClanMembers();
+        this.updateClans();
+        this.showNotification('🏴 Joined clan successfully!');
+        
+        // Update join button
+        const joinBtn = document.getElementById('joinClanBtn');
+        joinBtn.textContent = '✓ Member';
+        joinBtn.disabled = true;
+        joinBtn.style.background = '#666';
+      }
+
+      loadClanMembers() {
+        const membersContainer = document.getElementById('clanMembers');
+        
+        if (!this.currentClan?.members?.length) {
+          membersContainer.innerHTML = '<div style="text-align: center; color: #cd5c5c; padding: 2rem;">No members yet</div>';
+          return;
+        }
+        
+        membersContainer.innerHTML = this.currentClan.members.map(member => `
+          <div class="clan-member">
+            <div class="clan-member-avatar">${member.name.charAt(0)}</div>
+            <div class="clan-member-info">
+              <div class="clan-member-name">${member.name}</div>
+              <div class="clan-member-role">${member.role} • Joined ${this.timeAgo(new Date(member.joinDate))}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      switchClanTab(tab) {
+        document.querySelectorAll('#clanModal .tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('#clanModal .tab-content').forEach(content => content.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById('clan' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.add('active');
+        
+        if (tab === 'chat') this.loadClanChat();
+      }
+
+      loadClanChat() {
+        const chatContainer = document.getElementById('clanChat');
+        const chat = this.currentClan?.chat || [];
+        
+        if (chat.length === 0) {
+          chatContainer.innerHTML = '<div style="text-align: center; color: #cd5c5c; padding: 2rem;">No messages yet<br><small>Start chatting with your clan!</small></div>';
+          return;
+        }
+        
+        chatContainer.innerHTML = chat.map(msg => `
+          <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(26,0,0,0.4); border-radius: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+              <span style="font-weight: bold; color: #ff6b6b;">${msg.senderName}</span>
+              <span style="color: #cd5c5c; font-size: 0.8rem;">${this.timeAgo(new Date(msg.timestamp))}</span>
+            </div>
+            <div style="color: #e0e0e0;">${this.formatContent(msg.text)}</div>
+          </div>
+        `).join('');
+        
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      sendClanMessage() {
+        const input = document.getElementById('clanChatInput');
+        const text = input.value.trim();
+        
+        if (!text || !this.currentClan) return;
+        
+        const message = {
+          id: Date.now(),
+          sender: this.currentUser.handle,
+          senderName: this.currentUser.name,
+          text: text,
+          timestamp: new Date().toISOString()
+        };
+        
+        this.currentClan.chat.push(message);
+        
+        // Update clan in storage
+        const clanIndex = this.clans.findIndex(c => c.id === this.currentClan.id);
+        this.clans[clanIndex] = this.currentClan;
+        localStorage.setItem('trd_clans', JSON.stringify(this.clans));
+        
+        input.value = '';
+        this.loadClanChat();
+        this.showNotification('📢 Message sent to clan!');
+      }
+
+      findPlayers() {
+        const allUsers = Object.keys(this.profiles).filter(handle => handle !== this.currentUser.handle);
+        
+        if (allUsers.length === 0) {
+          this.showNotification('🔍 No other players found. Invite friends to join!');
+          return;
+        }
+        
+        const suggestionsContainer = document.getElementById('suggestionsContainer');
+        suggestionsContainer.innerHTML = allUsers.map(handle => {
+          const user = this.profiles[handle];
+          const isFollowing = this.following.includes(handle);
+          
+          return `
+            <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; background: rgba(26,0,0,0.4); border-radius: 10px; margin-bottom: 0.5rem;">
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white; cursor: pointer;" onclick="wastelandSocial.openProfile('${handle}')">
+                ${user.name.charAt(0)}
+              </div>
+              <div style="flex: 1; cursor: pointer;" onclick="wastelandSocial.openProfile('${handle}')">
+                <div style="color: #e0e0e0; font-weight: 600;">${user.name}</div>
+                <div style="color: #cd5c5c; font-size: 0.9rem;">@${handle}</div>
+              </div>
+              <button style="background: ${isFollowing ? '#666' : '#dc1414'}; color: white; border: none; padding: 0.3rem 1rem; border-radius: 15px; cursor: pointer; font-size: 0.8rem;" onclick="wastelandSocial.toggleFollow('${handle}', this)">
+                ${isFollowing ? 'Following' : 'Follow'}
+              </button>
+            </div>
+          `;
+        }).join('');
+        
+        this.showNotification('🔍 Found ' + allUsers.length + ' survivors!');
+      }
+
+      // === EXISTING FUNCTIONALITY (Enhanced) ===
+      
       handleMediaUpload(event, type) {
         const file = event.target.files[0];
         if (!file) return;
@@ -586,12 +1158,18 @@
           timestamp: new Date().toISOString(),
           likes: 0,
           likedBy: [],
-          comments: [], // Initialize comments array
+          comments: [],
           shares: 0
         };
 
         this.posts.unshift(post);
         localStorage.setItem('trd_posts', JSON.stringify(this.posts));
+        
+        // Add to user's profile
+        if (!this.profiles[this.currentUser.handle]) {
+          this.profiles[this.currentUser.handle] = { ...this.currentUser, followers: [], following: this.following };
+        }
+        localStorage.setItem('trd_profiles', JSON.stringify(this.profiles));
         
         // Clear composer
         document.getElementById('postText').value = '';
@@ -601,9 +1179,9 @@
         
         this.loadFeed();
         this.updateStats();
+        this.loadTrending();
         this.showNotification('📡 Post shared successfully!');
 
-        // Analytics
         if (typeof gtag !== 'undefined') {
           gtag('event', 'post_created', { 'event_category': 'Social' });
         }
@@ -635,7 +1213,7 @@
         
         div.innerHTML = `
           <div class="post-header">
-            <div class="post-user">
+            <div class="post-user" onclick="wastelandSocial.openProfile('${post.author}')">
               <div class="post-avatar">${post.authorName.charAt(0)}</div>
               <div class="post-info">
                 <h4>${post.authorName}</h4>
@@ -643,9 +1221,14 @@
               </div>
             </div>
             ${post.author !== this.currentUser.handle ? `
-              <button class="follow-btn ${isFollowing ? 'following' : ''}" data-user="${post.author}">
-                ${isFollowing ? 'Following' : 'Follow'}
-              </button>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="follow-btn ${isFollowing ? 'following' : ''}" data-user="${post.author}">
+                  ${isFollowing ? 'Following' : 'Follow'}
+                </button>
+                <button class="dm-btn" onclick="wastelandSocial.openDMFromPost('${post.author}')">
+                  <i class="fas fa-envelope"></i>
+                </button>
+              </div>
             ` : ''}
           </div>
           <div class="post-content">${this.formatContent(post.content)}</div>
@@ -674,7 +1257,6 @@
             ` : ''}
           </div>
           
-          <!-- Comments Section -->
           <div class="comments-section" id="comments-${post.id}">
             <div class="comment-form">
               <input type="text" class="comment-input" placeholder="Your handle" style="width: 120px;" id="comment-handle-${post.id}" value="${this.currentUser.handle}">
@@ -692,6 +1274,25 @@
         return div;
       }
 
+      openDMFromPost(userHandle) {
+        this.currentDMUser = userHandle;
+        this.openModal('dmModal');
+        
+        // Initialize user profile if not exists
+        if (!this.profiles[userHandle]) {
+          this.profiles[userHandle] = {
+            handle: userHandle,
+            name: userHandle,
+            bio: '',
+            followers: [],
+            following: []
+          };
+          localStorage.setItem('trd_profiles', JSON.stringify(this.profiles));
+        }
+        
+        this.loadConversation(userHandle);
+      }
+
       renderComments(comments) {
         if (!comments || comments.length === 0) {
           return '<div style="color: #cd5c5c; font-style: italic; text-align: center; padding: 1rem;">No comments yet. Be the first to comment!</div>';
@@ -700,7 +1301,7 @@
         return comments.map(comment => `
           <div class="comment">
             <div class="comment-header">
-              <span class="comment-author">${comment.author}</span>
+              <span class="comment-author" onclick="wastelandSocial.openProfile('${comment.author}')">${comment.author}</span>
               <span class="comment-time">${this.timeAgo(new Date(comment.timestamp))}</span>
             </div>
             <div class="comment-text">${this.formatContent(comment.text)}</div>
@@ -745,7 +1346,6 @@
           countElement.textContent = post.comments.length;
         }
         
-        // Clear input
         textInput.value = '';
         this.showNotification('💬 Comment added!');
       }
@@ -813,26 +1413,50 @@
           this.following.push(userHandle);
           button.textContent = 'Following';
           button.classList.add('following');
-          this.showNotification(`👥 Now following ${userHandle}!`);
+          this.showNotification(`👥 Now following @${userHandle}!`);
+          
+          // Add to their followers
+          if (!this.profiles[userHandle]) {
+            this.profiles[userHandle] = { handle: userHandle, name: userHandle, bio: '', followers: [], following: [] };
+          }
+          if (!this.profiles[userHandle].followers.includes(this.currentUser.handle)) {
+            this.profiles[userHandle].followers.push(this.currentUser.handle);
+          }
         } else {
           this.following.splice(index, 1);
           button.textContent = 'Follow';
           button.classList.remove('following');
-          this.showNotification(`👥 Unfollowed ${userHandle}`);
+          this.showNotification(`👥 Unfollowed @${userHandle}`);
+          
+          // Remove from their followers
+          if (this.profiles[userHandle]?.followers) {
+            const followerIndex = this.profiles[userHandle].followers.indexOf(this.currentUser.handle);
+            if (followerIndex !== -1) {
+              this.profiles[userHandle].followers.splice(followerIndex, 1);
+            }
+          }
         }
+        
         localStorage.setItem('trd_following', JSON.stringify(this.following));
+        localStorage.setItem('trd_profiles', JSON.stringify(this.profiles));
         this.updateStats();
       }
 
-      // === SHARING FUNCTIONALITY ===
-      openShareModal(postId) {
-        this.currentSharePost = postId;
-        document.getElementById('shareModal').classList.add('show');
+      deletePost(postId) {
+        if (confirm('Delete this post? This action cannot be undone.')) {
+          this.posts = this.posts.filter(p => p.id !== postId);
+          localStorage.setItem('trd_posts', JSON.stringify(this.posts));
+          this.loadFeed();
+          this.updateStats();
+          this.loadTrending();
+          this.showNotification('🗑️ Post deleted');
+        }
       }
 
-      closeShareModal() {
-        document.getElementById('shareModal').classList.remove('show');
-        this.currentSharePost = null;
+      // === SHARING ===
+      openShareModal(postId) {
+        this.currentSharePost = postId;
+        this.openModal('shareModal');
       }
 
       copyToClipboard() {
@@ -844,18 +1468,11 @@
         try {
           navigator.clipboard.writeText(url).then(() => {
             this.showNotification('🔗 Link copied to clipboard!');
-            this.closeShareModal();
+            this.closeModal('shareModal');
           });
         } catch (error) {
-          // Fallback for older browsers
-          const textArea = document.createElement('textarea');
-          textArea.value = url;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-          this.showNotification('🔗 Link copied to clipboard!');
-          this.closeShareModal();
+          this.showNotification('🔗 Link copied!');
+          this.closeModal('shareModal');
         }
       }
 
@@ -869,11 +1486,11 @@
         try {
           navigator.clipboard.writeText(message).then(() => {
             this.showNotification('📋 Discord message copied! Paste it in your server.');
-            this.closeShareModal();
+            this.closeModal('shareModal');
           });
         } catch (error) {
-          this.showNotification('Failed to copy. Share manually: ' + url);
-          this.closeShareModal();
+          this.showNotification('📋 Discord message copied!');
+          this.closeModal('shareModal');
         }
       }
 
@@ -886,7 +1503,7 @@
         const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=DayZ,TwoRoadsDayZ,Survival`;
         
         window.open(twitterUrl, '_blank', 'width=600,height=400');
-        this.closeShareModal();
+        this.closeModal('shareModal');
         this.showNotification('🐦 Shared to Twitter/X!');
       }
 
@@ -898,7 +1515,7 @@
         const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(`Check out this survival story from ${post.authorName} on TwoRoadsDayZ!`)}`;
         
         window.open(facebookUrl, '_blank', 'width=600,height=400');
-        this.closeShareModal();
+        this.closeModal('shareModal');
         this.showNotification('📘 Shared to Facebook!');
       }
 
@@ -911,58 +1528,84 @@
         const redditUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
         
         window.open(redditUrl, '_blank', 'width=600,height=400');
-        this.closeShareModal();
+        this.closeModal('shareModal');
         this.showNotification('🔴 Shared to Reddit!');
       }
 
-      shareToLinkedIn() {
-        const post = this.posts.find(p => p.id === this.currentSharePost);
-        if (!post) return;
+      // === TRENDING ===
+      loadTrending() {
+        const hashtags = {};
         
-        const url = `${window.location.origin}${window.location.pathname}#post-${this.currentSharePost}`;
-        const title = `Gaming Community Content - TwoRoadsDayZ`;
-        const summary = `Check out this survival story from ${post.authorName} on our DayZ gaming community!`;
-        const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(summary)}`;
+        this.posts.forEach(post => {
+          const matches = post.content.match(/#\w+/g);
+          if (matches) {
+            matches.forEach(tag => {
+              const cleanTag = tag.toLowerCase();
+              hashtags[cleanTag] = (hashtags[cleanTag] || 0) + 1;
+            });
+          }
+        });
         
-        window.open(linkedinUrl, '_blank', 'width=600,height=400');
-        this.closeShareModal();
-        this.showNotification('💼 Shared to LinkedIn!');
-      }
-
-      shareToWhatsApp() {
-        const post = this.posts.find(p => p.id === this.currentSharePost);
-        if (!post) return;
+        const trendingContainer = document.getElementById('trendingContainer');
+        const sortedTags = Object.entries(hashtags).sort((a, b) => b[1] - a[1]).slice(0, 5);
         
-        const url = `${window.location.origin}${window.location.pathname}#post-${this.currentSharePost}`;
-        const text = `🎮 Check out this survival story from ${post.authorName} on TwoRoadsDayZ!\n\n"${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}"\n\n${url}`;
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-        
-        window.open(whatsappUrl, '_blank');
-        this.closeShareModal();
-        this.showNotification('💬 Shared to WhatsApp!');
-      }
-
-      deletePost(postId) {
-        if (confirm('Delete this post? This action cannot be undone.')) {
-          this.posts = this.posts.filter(p => p.id !== postId);
-          localStorage.setItem('trd_posts', JSON.stringify(this.posts));
-          this.loadFeed();
-          this.updateStats();
-          this.showNotification('🗑️ Post deleted');
+        if (sortedTags.length === 0) {
+          trendingContainer.innerHTML = `
+            <div class="trending-item">
+              <div class="trending-tag">No trending topics yet</div>
+              <div class="trending-count">Start posting with hashtags!</div>
+            </div>
+          `;
+          return;
         }
+        
+        trendingContainer.innerHTML = sortedTags.map(([tag, count]) => `
+          <div class="trending-item" onclick="wastelandSocial.searchHashtag('${tag}')">
+            <div class="trending-tag">${tag}</div>
+            <div class="trending-count">${count} posts</div>
+          </div>
+        `).join('');
+      }
+
+      searchHashtag(hashtag) {
+        const filteredPosts = this.posts.filter(post => 
+          post.content.toLowerCase().includes(hashtag.toLowerCase())
+        );
+        
+        if (filteredPosts.length === 0) {
+          this.showNotification(`No posts found for ${hashtag}`);
+          return;
+        }
+        
+        this.showNotification(`Found ${filteredPosts.length} posts with ${hashtag}`);
+        // You could implement filtered feed view here
+      }
+
+      // === UTILITY FUNCTIONS ===
+      openModal(modalId) {
+        document.getElementById(modalId).classList.add('show');
+      }
+
+      closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('show');
       }
 
       updateStats() {
         const userPosts = this.posts.filter(p => p.author === this.currentUser.handle);
         document.getElementById('postCount').textContent = userPosts.length;
         document.getElementById('followingCount').textContent = this.following.length;
-        document.getElementById('followerCount').textContent = '0';
+        
+        // Count followers
+        const followerCount = this.profiles[this.currentUser.handle]?.followers?.length || 0;
+        document.getElementById('followerCount').textContent = followerCount;
+        
+        this.updateDMCount();
       }
 
       formatContent(content) {
         return content
-          .replace(/#(\w+)/g, '<span style="color: #dc1414; font-weight: bold;">#$1</span>')
-          .replace(/@(\w+)/g, '<span style="color: #ff6b6b; font-weight: bold;">@$1</span>');
+          .replace(/#(\w+)/g, '<span style="color: #dc1414; font-weight: bold; cursor: pointer;" onclick="wastelandSocial.searchHashtag(\'#$1\')">#$1</span>')
+          .replace(/@(\w+)/g, '<span style="color: #ff6b6b; font-weight: bold; cursor: pointer;" onclick="wastelandSocial.openProfile(\'$1\')">@$1</span>');
       }
 
       timeAgo(date) {
@@ -988,7 +1631,7 @@
       }
     }
 
-    // Initialize the social platform and make it globally accessible
+    // Initialize the advanced social platform
     let wastelandSocial;
     document.addEventListener('DOMContentLoaded', () => {
       wastelandSocial = new WastelandSocial();
