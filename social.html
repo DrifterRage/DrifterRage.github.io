@@ -306,11 +306,6 @@
           localStorage.setItem('trd_user', JSON.stringify(this.currentUser));
           document.getElementById('userHandle').textContent = '@' + this.currentUser.handle;
         });
-
-        // Follow suggestions
-        document.querySelectorAll('.suggestion-follow').forEach(btn => {
-          btn.addEventListener('click', (e) => this.followUser(e.target));
-        });
       }
 
       handleMediaUpload(event, type) {
@@ -546,11 +541,6 @@
 
       openComments(postId) {
         alert('Comments feature coming soon!');
-      }
-
-      followUser(button) {
-        button.textContent = 'Following';
-        button.style.background = '#8b0000';
       }
 
       updateStats() {
