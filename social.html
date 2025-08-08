@@ -189,15 +189,15 @@
         <h3><i class="fas fa-chart-line"></i> Server Stats</h3>
         <div class="trending-item">
           <div class="trending-tag">Players Online</div>
-          <div class="trending-count">47/60</div>
+          <div class="trending-count">--/60</div>
         </div>
         <div class="trending-item">
           <div class="trending-tag">Total Survivors</div>
-          <div class="trending-count">2,847</div>
+          <div class="trending-count">--</div>
         </div>
         <div class="trending-item">
           <div class="trending-tag">Active Clans</div>
-          <div class="trending-count">23</div>
+          <div class="trending-count">--</div>
         </div>
       </div>
     </div>
@@ -243,48 +243,18 @@
       <div>
         <h3><i class="fas fa-fire"></i> Trending</h3>
         <div class="trending-item">
-          <div class="trending-tag">#SurvivalTips</div>
-          <div class="trending-count">247 posts</div>
-        </div>
-        <div class="trending-item">
-          <div class="trending-tag">#ClanRecruit</div>
-          <div class="trending-count">89 posts</div>
-        </div>
-        <div class="trending-item">
-          <div class="trending-tag">#PvPHighlights</div>
-          <div class="trending-count">156 posts</div>
-        </div>
-        <div class="trending-item">
-          <div class="trending-tag">#BaseBuilding</div>
-          <div class="trending-count">203 posts</div>
+          <div class="trending-tag">No trending topics yet</div>
+          <div class="trending-count">Start posting with hashtags!</div>
         </div>
       </div>
 
       <div style="margin-top: 2rem;">
         <h3><i class="fas fa-users"></i> Who to Follow</h3>
         <div class="suggestion-item">
-          <div class="suggestion-avatar">A</div>
-          <div class="suggestion-info">
-            <div class="suggestion-name">Admin_TwoRoads</div>
-            <div class="suggestion-handle">@admin</div>
+          <div class="suggestion-info" style="text-align: center; color: #cd5c5c;">
+            <div class="suggestion-name">No suggestions yet</div>
+            <div class="suggestion-handle">Start following other survivors!</div>
           </div>
-          <button class="suggestion-follow">Follow</button>
-        </div>
-        <div class="suggestion-item">
-          <div class="suggestion-avatar">S</div>
-          <div class="suggestion-info">
-            <div class="suggestion-name">SnipeMaster</div>
-            <div class="suggestion-handle">@sniper</div>
-          </div>
-          <button class="suggestion-follow">Follow</button>
-        </div>
-        <div class="suggestion-item">
-          <div class="suggestion-avatar">M</div>
-          <div class="suggestion-info">
-            <div class="suggestion-name">MedicMain</div>
-            <div class="suggestion-handle">@medic</div>
-          </div>
-          <button class="suggestion-follow">Follow</button>
         </div>
       </div>
     </div>
@@ -587,8 +557,8 @@
         const userPosts = this.posts.filter(p => p.author === this.currentUser.handle);
         document.getElementById('postCount').textContent = userPosts.length;
         document.getElementById('followingCount').textContent = this.following.length;
-        // Follower count would be calculated based on who follows current user
-        document.getElementById('followerCount').textContent = Math.floor(Math.random() * 50);
+        // Real follower count would be calculated from actual followers data
+        document.getElementById('followerCount').textContent = '0';
       }
 
       formatContent(content) {
