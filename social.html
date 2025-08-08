@@ -3,14 +3,132 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TwoRoadsDayZ — Community Feed</title>
+  <title>TwoRoadsDayZ — Wasteland Network</title>
 
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="assets/style.css" rel="stylesheet">
-
-  <!-- Optional: tiny visual for liked state -->
   <style>
-    .buy-btn.liked { box-shadow: 0 0 0 2px rgba(255,80,80,.7) inset; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0000 0%, #1a0000 25%, #2b0000 50%, #1a0000 75%, #0a0000 100%);
+      color: #e0e0e0; overflow-x: hidden; position: relative; min-height: 100vh;
+    }
+    body::before {
+      content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(220, 20, 20, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(139, 0, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(205, 92, 92, 0.05) 0%, transparent 50%);
+      z-index: -2; pointer-events: none;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed; top: 0; width: 100%; background: rgba(10,0,0,0.95);
+      backdrop-filter: blur(20px); padding: 1rem 0; z-index: 1000;
+      border-bottom: 3px solid rgba(220, 20, 20, 0.5); transition: all .3s ease;
+      box-shadow: 0 2px 20px rgba(139,0,0,.3);
+    }
+    .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; }
+    .logo {
+      font-size: 1.8rem; font-weight: bold; background: linear-gradient(45deg, #dc1414, #ff6b6b, #b30000);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none;
+    }
+    .nav-links { display: flex; list-style: none; gap: 2rem; align-items: center; }
+    .nav-links a { color: #e0e0e0; text-decoration: none; font-weight: 600; transition: color .3s ease; }
+    .nav-links a:hover { color: #dc1414; }
+
+    /* Main Layout */
+    .main-container { display: grid; grid-template-columns: 300px 1fr 300px; gap: 2rem; max-width: 1400px; margin: 80px auto 0; padding: 2rem; }
+    
+    /* Sidebar Styles */
+    .sidebar { background: rgba(26,0,0,0.8); backdrop-filter: blur(20px); border-radius: 20px; padding: 2rem; border: 2px solid rgba(220,20,20,.3); height: fit-content; position: sticky; top: 100px; }
+    .sidebar h3 { color: #dc1414; margin-bottom: 1rem; font-size: 1.2rem; }
+
+    /* User Profile Card */
+    .user-profile { text-align: center; margin-bottom: 2rem; }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem; color: white; border: 3px solid rgba(220,20,20,.5); }
+    .profile-stats { display: flex; justify-content: space-around; margin-top: 1rem; }
+    .stat { text-align: center; }
+    .stat-number { font-size: 1.2rem; font-weight: bold; color: #dc1414; }
+    .stat-label { font-size: 0.8rem; color: #cd5c5c; }
+
+    /* Feed Container */
+    .feed-container { max-width: 600px; }
+    
+    /* Post Composer */
+    .post-composer { background: rgba(26,0,0,0.8); backdrop-filter: blur(20px); border-radius: 20px; padding: 2rem; border: 2px solid rgba(220,20,20,.3); margin-bottom: 2rem; }
+    .composer-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .composer-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white; }
+    .composer-input { flex: 1; }
+    .composer-textarea { width: 100%; background: rgba(10,0,0,0.6); border: 2px solid rgba(220,20,20,.4); border-radius: 10px; padding: 1rem; color: #e0e0e0; resize: vertical; min-height: 100px; font-family: inherit; }
+    .composer-textarea:focus { outline: none; border-color: #dc1414; box-shadow: 0 0 20px rgba(220,20,20,.4); }
+    .composer-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+    .media-upload { display: flex; gap: 1rem; }
+    .upload-btn { background: rgba(220,20,20,0.2); border: 2px solid rgba(220,20,20,.4); border-radius: 10px; padding: 0.5rem 1rem; cursor: pointer; transition: all .3s ease; color: #e0e0e0; }
+    .upload-btn:hover { background: rgba(220,20,20,0.4); border-color: #dc1414; }
+    .post-btn { background: linear-gradient(45deg,#dc1414,#b30000); color: white; border: none; padding: 0.8rem 2rem; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all .3s ease; }
+    .post-btn:hover { background: linear-gradient(45deg,#b30000,#8b0000); transform: translateY(-2px); }
+
+    /* Post Styles */
+    .post { background: rgba(26,0,0,0.8); backdrop-filter: blur(20px); border-radius: 20px; padding: 2rem; border: 2px solid rgba(220,20,20,.3); margin-bottom: 2rem; transition: all .3s ease; }
+    .post:hover { border-color: rgba(220,20,20,.6); box-shadow: 0 10px 30px rgba(220,20,20,.2); }
+    .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .post-user { display: flex; align-items: center; gap: 1rem; }
+    .post-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white; }
+    .post-info h4 { color: #e0e0e0; margin-bottom: 0.2rem; }
+    .post-time { color: #cd5c5c; font-size: 0.9rem; }
+    .follow-btn { background: transparent; border: 2px solid #dc1414; color: #dc1414; padding: 0.3rem 1rem; border-radius: 15px; cursor: pointer; transition: all .3s ease; font-size: 0.8rem; }
+    .follow-btn:hover, .follow-btn.following { background: #dc1414; color: white; }
+    .post-content { margin: 1rem 0; line-height: 1.6; }
+    .post-media { margin: 1rem 0; border-radius: 15px; overflow: hidden; }
+    .post-image { width: 100%; max-height: 400px; object-fit: cover; border-radius: 15px; }
+    .post-video { width: 100%; max-height: 400px; border-radius: 15px; }
+    .post-actions { display: flex; gap: 1rem; padding-top: 1rem; border-top: 1px solid rgba(220,20,20,.2); }
+    .action-btn { background: transparent; border: none; color: #cd5c5c; cursor: pointer; transition: color .3s ease; display: flex; align-items: center; gap: 0.5rem; }
+    .action-btn:hover, .action-btn.active { color: #dc1414; }
+
+    /* Trending Section */
+    .trending-item { padding: 1rem 0; border-bottom: 1px solid rgba(220,20,20,.2); }
+    .trending-item:last-child { border-bottom: none; }
+    .trending-tag { color: #dc1414; font-weight: bold; }
+    .trending-count { color: #cd5c5c; font-size: 0.9rem; }
+
+    /* Suggestions */
+    .suggestion-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid rgba(220,20,20,.2); }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #dc1414, #b30000); display: flex; align-items: center; justify-content: center; color: white; }
+    .suggestion-info { flex: 1; }
+    .suggestion-name { color: #e0e0e0; font-weight: 600; }
+    .suggestion-handle { color: #cd5c5c; font-size: 0.9rem; }
+    .suggestion-follow { background: #dc1414; color: white; border: none; padding: 0.3rem 1rem; border-radius: 15px; cursor: pointer; font-size: 0.8rem; }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .main-container { grid-template-columns: 1fr; gap: 1rem; }
+      .sidebar { position: static; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-container { flex-direction: column; gap: 1rem; }
+      .main-container { padding: 1rem; }
+      .composer-actions { flex-direction: column; gap: 1rem; align-items: stretch; }
+      .media-upload { justify-content: center; }
+    }
+
+    /* Animations */
+    .fade-in { opacity: 0; transform: translateY(20px); animation: fadeIn 0.6s ease forwards; }
+    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+    /* Hide file inputs */
+    .file-input { display: none; }
+
+    /* Media preview */
+    .media-preview { margin-top: 1rem; }
+    .preview-image { max-width: 100%; max-height: 200px; border-radius: 10px; }
+    .remove-media { background: #dc1414; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; position: absolute; top: 5px; right: 5px; }
+    .media-preview-container { position: relative; display: inline-block; }
   </style>
 
   <!-- Google tag (gtag.js) -->
@@ -23,11 +141,6 @@
   </script>
 </head>
 <body>
-  <!-- Scroll Indicator -->
-  <div class="scroll-indicator"><div class="scroll-progress"></div></div>
-  <!-- Background Particles -->
-  <div class="particles"></div>
-
   <!-- Navigation -->
   <nav id="navbar">
     <div class="nav-container">
@@ -44,322 +157,465 @@
     </div>
   </nav>
 
-  <!-- Page Header -->
-  <section class="hero" id="top">
-    <div class="hero-content">
-      <h1>Your Feed</h1>
-      <p>Share your latest survival stories.</p>
-    </div>
-  </section>
-
-  <!-- Composer -->
-  <section>
-    <div class="container">
-      <div class="contact-form fade-in" style="max-width:800px;margin:0 auto;">
-        <div class="form-group">
-          <label for="handle">Your Handle (optional)</label>
-          <input id="handle" placeholder="e.g., Snipes">
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+      <!-- User Profile -->
+      <div class="user-profile">
+        <div class="profile-avatar" id="userAvatar">
+          <i class="fas fa-user"></i>
         </div>
-
-        <div class="form-group">
-          <label for="postText">New Post</label>
-          <textarea id="postText" placeholder="Share what just happened..."></textarea>
+        <h4 id="userName">Survivor</h4>
+        <p id="userHandle">@survivor</p>
+        <div class="profile-stats">
+          <div class="stat">
+            <div class="stat-number" id="postCount">0</div>
+            <div class="stat-label">Posts</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number" id="followerCount">0</div>
+            <div class="stat-label">Followers</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number" id="followingCount">0</div>
+            <div class="stat-label">Following</div>
+          </div>
         </div>
-
-        <button class="submit-btn" id="postBtn"><i class="fas fa-plus"></i> Post</button>
       </div>
 
-      <div class="section-divider"></div>
+      <!-- Quick Stats -->
+      <div>
+        <h3><i class="fas fa-chart-line"></i> Server Stats</h3>
+        <div class="trending-item">
+          <div class="trending-tag">Players Online</div>
+          <div class="trending-count">47/60</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-tag">Total Survivors</div>
+          <div class="trending-count">2,847</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-tag">Active Clans</div>
+          <div class="trending-count">23</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Feed -->
+    <div class="feed-container">
+      <!-- Post Composer -->
+      <div class="post-composer fade-in">
+        <div class="composer-header">
+          <div class="composer-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="composer-input">
+            <input type="text" id="handleInput" placeholder="Your handle (optional)" style="width: 100%; background: rgba(10,0,0,0.6); border: 1px solid rgba(220,20,20,.4); border-radius: 5px; padding: 0.5rem; color: #e0e0e0; margin-bottom: 0.5rem;">
+          </div>
+        </div>
+        <textarea id="postText" class="composer-textarea" placeholder="Share your survival story, screenshots, or intel..."></textarea>
+        <div class="media-preview" id="mediaPreview"></div>
+        <div class="composer-actions">
+          <div class="media-upload">
+            <label class="upload-btn" for="imageUpload">
+              <i class="fas fa-image"></i> Photo
+            </label>
+            <label class="upload-btn" for="videoUpload">
+              <i class="fas fa-video"></i> Video
+            </label>
+            <input type="file" id="imageUpload" class="file-input" accept="image/*">
+            <input type="file" id="videoUpload" class="file-input" accept="video/*">
+          </div>
+          <button class="post-btn" id="postBtn">
+            <i class="fas fa-paper-plane"></i> Share Intel
+          </button>
+        </div>
+      </div>
 
       <!-- Feed -->
-      <div id="feed" class="staff-grid"></div>
+      <div id="feed"></div>
     </div>
-  </section>
 
-  <!-- Floating Action Button -->
-  <a href="#top" class="fab"><i class="fas fa-chevron-up"></i></a>
+    <!-- Right Sidebar -->
+    <div class="sidebar">
+      <!-- Trending -->
+      <div>
+        <h3><i class="fas fa-fire"></i> Trending</h3>
+        <div class="trending-item">
+          <div class="trending-tag">#SurvivalTips</div>
+          <div class="trending-count">247 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-tag">#ClanRecruit</div>
+          <div class="trending-count">89 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-tag">#PvPHighlights</div>
+          <div class="trending-count">156 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-tag">#BaseBuilding</div>
+          <div class="trending-count">203 posts</div>
+        </div>
+      </div>
 
-  <!-- Global site JS (your existing effects) -->
-  <script src="assets/script.js"></script>
+      <div style="margin-top: 2rem;">
+        <h3><i class="fas fa-users"></i> Who to Follow</h3>
+        <div class="suggestion-item">
+          <div class="suggestion-avatar">A</div>
+          <div class="suggestion-info">
+            <div class="suggestion-name">Admin_TwoRoads</div>
+            <div class="suggestion-handle">@admin</div>
+          </div>
+          <button class="suggestion-follow">Follow</button>
+        </div>
+        <div class="suggestion-item">
+          <div class="suggestion-avatar">S</div>
+          <div class="suggestion-info">
+            <div class="suggestion-name">SnipeMaster</div>
+            <div class="suggestion-handle">@sniper</div>
+          </div>
+          <button class="suggestion-follow">Follow</button>
+        </div>
+        <div class="suggestion-item">
+          <div class="suggestion-avatar">M</div>
+          <div class="suggestion-info">
+            <div class="suggestion-name">MedicMain</div>
+            <div class="suggestion-handle">@medic</div>
+          </div>
+          <button class="suggestion-follow">Follow</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- Firestore-powered Social Feed (Auth + one-like-per-user) -->
-  <script type="module">
-    /************************************
-     * TwoRoadsDayZ - Firestore Social
-     * GitHub Pages friendly (CDN imports)
-     ************************************/
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
-    import {
-      getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp,
-      doc, deleteDoc, getDoc, getCountFromServer, setDoc
-    } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
-    import {
-      getAuth, signInAnonymously, onAuthStateChanged
-    } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js';
-
-    // 🔧 Your Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDtu5RX7ZR6xU9EfUAq9_jmgQp_2aS08N4",
-      authDomain: "tworoadsdayzmediashare.firebaseapp.com",
-      projectId: "tworoadsdayzmediashare",
-      storageBucket: "tworoadsdayzmediashare.firebasestorage.app",
-      messagingSenderId: "1071182717113",
-      appId: "1:1071182717113:web:e5d3f7b23997cc58087b68"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
-
-    // 🔐 Anonymous Auth (each visitor gets a UID)
-    const auth = getAuth();
-    let currentUid = null;
-    signInAnonymously(auth).catch(console.error);
-    onAuthStateChanged(auth, (user) => { currentUid = user?.uid || null; });
-
-    // DOM refs
-    const feedEl      = document.getElementById('feed');
-    const txt         = document.getElementById('postText');
-    const btn         = document.getElementById('postBtn');
-    const handleInput = document.getElementById('handle');
-
-    // remember handle locally
-    const USER_KEY = 'trd_user_handle';
-    if (handleInput) handleInput.value = localStorage.getItem(USER_KEY) || '';
-    handleInput?.addEventListener('input', () => {
-      localStorage.setItem(USER_KEY, handleInput.value.trim());
-    });
-
-    // basic rate limit
-    const LAST_POST_KEY = 'trd_last_post_ts';
-    function rateLimited(ms=8000) {
-      const last = Number(localStorage.getItem(LAST_POST_KEY) || 0);
-      const now  = Date.now();
-      if (now - last < ms) return true;
-      localStorage.setItem(LAST_POST_KEY, String(now));
-      return false;
-    }
-
-    function escapeHtml(s='') {
-      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    }
-    function toDate(ts) {
-      return ts?.seconds ? new Date(ts.seconds * 1000) : new Date();
-    }
-
-    // --- Likes helpers: 1 like per user via subcollection ----------------
-    async function userHasLiked(postId) {
-      if (!currentUid) return false;
-      const likeRef = doc(db, 'posts', postId, 'likes', currentUid);
-      const snap = await getDoc(likeRef);
-      return snap.exists();
-    }
-
-    async function getLikeCount(postId) {
-      const likesCol = collection(db, 'posts', postId, 'likes');
-      const agg = await getCountFromServer(likesCol);
-      return agg.data().count || 0;
-    }
-
-    async function toggleLike(postId, btn) {
-      if (!currentUid) {
-        alert('Please wait a second for sign-in to complete…');
-        return;
-      }
-      const likeRef = doc(db, 'posts', postId, 'likes', currentUid);
-      const liked = await userHasLiked(postId);
-
-      if (liked) {
-        await deleteDoc(likeRef);
-      } else {
-        await setDoc(likeRef, { uid: currentUid, ts: serverTimestamp() });
+  <script>
+    // Enhanced Social Media JavaScript
+    class WastelandSocial {
+      constructor() {
+        this.posts = JSON.parse(localStorage.getItem('trd_posts') || '[]');
+        this.currentUser = JSON.parse(localStorage.getItem('trd_user') || '{}');
+        this.following = JSON.parse(localStorage.getItem('trd_following') || '[]');
+        this.initializeUser();
+        this.setupEventListeners();
+        this.loadFeed();
+        this.updateStats();
       }
 
-      const count = await getLikeCount(postId);
-      const cntEl = btn.querySelector('[data-like-count]');
-      if (cntEl) cntEl.textContent = String(count);
-      btn.dataset.liked = (!liked).toString();
-      btn.classList.toggle('liked', !liked);
-    }
-    // --------------------------------------------------------------------
+      initializeUser() {
+        if (!this.currentUser.handle) {
+          this.currentUser = {
+            handle: 'Survivor_' + Math.floor(Math.random() * 9999),
+            name: 'Survivor',
+            avatar: '🎯',
+            joinDate: new Date().toISOString()
+          };
+          localStorage.setItem('trd_user', JSON.stringify(this.currentUser));
+        }
+        
+        document.getElementById('userName').textContent = this.currentUser.name;
+        document.getElementById('userHandle').textContent = '@' + this.currentUser.handle;
+        document.getElementById('handleInput').value = this.currentUser.handle;
+      }
 
-    // Create post
-    btn?.addEventListener('click', async () => {
-      const text   = (txt?.value || '').trim();
-      const author = (handleInput?.value || '').trim();
-      if (!text) return;
-      if (rateLimited()) { alert('Slow down a sec before posting again 🙂'); return; }
-
-      try {
-        if (handleInput) localStorage.setItem(USER_KEY, author);
-        await addDoc(collection(db, 'posts'), {
-          content: text,
-          author,
-          uid: currentUid,
-          createdAt: serverTimestamp()
+      setupEventListeners() {
+        // Post button
+        document.getElementById('postBtn').addEventListener('click', () => this.createPost());
+        
+        // Media uploads
+        document.getElementById('imageUpload').addEventListener('change', (e) => this.handleMediaUpload(e, 'image'));
+        document.getElementById('videoUpload').addEventListener('change', (e) => this.handleMediaUpload(e, 'video'));
+        
+        // Feed interactions
+        document.getElementById('feed').addEventListener('click', (e) => this.handleFeedInteraction(e));
+        
+        // Handle input change
+        document.getElementById('handleInput').addEventListener('change', (e) => {
+          this.currentUser.handle = e.target.value || 'Survivor';
+          localStorage.setItem('trd_user', JSON.stringify(this.currentUser));
+          document.getElementById('userHandle').textContent = '@' + this.currentUser.handle;
         });
-        if (txt) txt.value = '';
-        await loadFeed();
 
-        if (typeof gtag !== 'undefined') {
-          gtag('event','submit',{event_category:'Social',event_label:'Post_Submit'});
-        }
-      } catch (err) {
-        console.error('Error adding post:', err);
-        alert('Failed to post. Try again?');
+        // Follow suggestions
+        document.querySelectorAll('.suggestion-follow').forEach(btn => {
+          btn.addEventListener('click', (e) => this.followUser(e.target));
+        });
       }
-    });
 
-    // Load comments for a post
-    async function loadComments(postId) {
-      const list = document.querySelector(`[data-c-list="${postId}"]`);
-      if (!list) return;
-      const q = query(collection(db, 'posts', postId, 'comments'), orderBy('createdAt', 'asc'));
-      const snap = await getDocs(q);
-      if (snap.empty) {
-        list.innerHTML = '<div class="server-info" style="opacity:.7">No comments yet.</div>';
-        return;
-      }
-      list.innerHTML = snap.docs.map(d => {
-        const c = d.data();
-        return `
-          <div class="server-info" style="margin:.5rem 0;">
-            <strong>${escapeHtml(c.author || 'Survivor')}</strong>
-            <span style="opacity:.7; margin-left:.5rem;">${toDate(c.createdAt).toLocaleString()}</span>
-            <div style="margin-top:.25rem;">${escapeHtml(c.text || '')}</div>
-          </div>
-        `;
-      }).join('');
-    }
+      handleMediaUpload(event, type) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-    // Like / Delete / Toggle comments / Add comment
-    feedEl?.addEventListener('click', async (e) => {
-      const likeBtn   = e.target.closest('button[data-like]');
-      const delBtn    = e.target.closest('button[data-del]');
-      const toggleBtn = e.target.closest('button[data-toggle-comments]');
-      const addCBtn   = e.target.closest('button[data-c-post]');
-
-      try {
-        if (likeBtn) {
-          const id = likeBtn.getAttribute('data-like');
-          await toggleLike(id, likeBtn);
-          return;
-        }
-
-        if (toggleBtn) {
-          const id  = toggleBtn.getAttribute('data-toggle-comments');
-          const box = document.querySelector(`[data-comments="${id}"]`);
-          if (!box) return;
-          const show = box.style.display !== 'block';
-          box.style.display = show ? 'block' : 'none';
-          if (show) await loadComments(id);
-          return;
-        }
-
-        if (addCBtn) {
-          const id      = addCBtn.getAttribute('data-c-post');
-          const hInput  = document.querySelector(`[data-c-handle="${id}"]`);
-          const tInput  = document.querySelector(`[data-c-text="${id}"]`);
-          const author  = (hInput?.value || '').trim() || 'Survivor';
-          const text    = (tInput?.value || '').trim();
-          if (!text) return;
-
-          await addDoc(collection(db, 'posts', id, 'comments'), {
-            author, text, uid: currentUid, createdAt: serverTimestamp()
-          });
-          if (tInput) tInput.value = '';
-          await loadComments(id);
-          return;
-        }
-
-        if (delBtn) {
-          const id  = delBtn.getAttribute('data-del');
-          const ref = doc(db, 'posts', id);
-
-          // soft client check by handle (final enforcement is via security rules)
-          const myHandle = (localStorage.getItem(USER_KEY) || '').trim().toLowerCase();
-          const snap = await getDoc(ref);
-          const post = snap.exists() ? snap.data() : null;
-          const owner = (post?.author || '').trim().toLowerCase();
-          if (owner && myHandle !== owner) {
-            const ok = confirm('Handle does not match post author. Delete anyway?');
-            if (!ok) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const preview = document.getElementById('mediaPreview');
+          const container = document.createElement('div');
+          container.className = 'media-preview-container';
+          
+          if (type === 'image') {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'preview-image';
+            container.appendChild(img);
+          } else if (type === 'video') {
+            const video = document.createElement('video');
+            video.src = e.target.result;
+            video.className = 'preview-image';
+            video.controls = true;
+            container.appendChild(video);
           }
-          await deleteDoc(ref);
-          await loadFeed();
-          return;
+          
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'remove-media';
+          removeBtn.innerHTML = '×';
+          removeBtn.onclick = () => {
+            preview.innerHTML = '';
+            event.target.value = '';
+          };
+          container.appendChild(removeBtn);
+          
+          preview.innerHTML = '';
+          preview.appendChild(container);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      createPost() {
+        const content = document.getElementById('postText').value.trim();
+        if (!content) return;
+
+        const mediaPreview = document.getElementById('mediaPreview');
+        let media = null;
+        
+        if (mediaPreview.children.length > 0) {
+          const mediaElement = mediaPreview.querySelector('img, video');
+          if (mediaElement) {
+            media = {
+              type: mediaElement.tagName.toLowerCase(),
+              src: mediaElement.src
+            };
+          }
         }
-      } catch (err) {
-        console.error('Action error:', err);
-        alert('Action failed. Try again?');
+
+        const post = {
+          id: Date.now(),
+          author: this.currentUser.handle,
+          authorName: this.currentUser.name,
+          content: content,
+          media: media,
+          timestamp: new Date().toISOString(),
+          likes: 0,
+          likedBy: [],
+          comments: [],
+          shares: 0
+        };
+
+        this.posts.unshift(post);
+        localStorage.setItem('trd_posts', JSON.stringify(this.posts));
+        
+        // Clear composer
+        document.getElementById('postText').value = '';
+        mediaPreview.innerHTML = '';
+        document.getElementById('imageUpload').value = '';
+        document.getElementById('videoUpload').value = '';
+        
+        this.loadFeed();
+        this.updateStats();
+
+        // Analytics
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'post_created', { 'event_category': 'Social' });
+        }
       }
-    });
 
-    // Load feed
-    async function loadFeed() {
-      if (!feedEl) return;
-      feedEl.innerHTML = '';
+      loadFeed() {
+        const feed = document.getElementById('feed');
+        feed.innerHTML = '';
 
-      const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
-      const snap = await getDocs(q);
-
-      if (snap.empty) {
-        feedEl.innerHTML = '<div class="server-info" style="opacity:.7">No posts yet. Be the first survivor to report in.</div>';
-        return;
+        this.posts.forEach(post => {
+          const isFollowing = this.following.includes(post.author);
+          const postElement = this.createPostElement(post, isFollowing);
+          feed.appendChild(postElement);
+        });
       }
 
-      for (const docSnap of snap.docs) {
-        const p = docSnap.data();
-        const id = docSnap.id;
-
-        const card = document.createElement('div');
-        card.className = 'staff-card fade-in visible';
-        card.innerHTML = `
-          <div class="staff-avatar"><i class="fas fa-user"></i></div>
-          <h3>${escapeHtml(p.author || 'Survivor')}</h3>
-          <div class="staff-role">${toDate(p.createdAt).toLocaleString()}</div>
-          <div class="staff-bio">${escapeHtml(p.content || '')}</div>
-
-          <div style="display:flex; gap:.5rem; margin-top:.75rem;">
-            <button class="buy-btn" data-like="${id}">
-              👍 <span data-like-count>0</span>
-            </button>
-            <button class="buy-btn" data-toggle-comments="${id}">
-              Comments
-            </button>
-            <button class="buy-btn" data-del="${id}">Delete</button>
+      createPostElement(post, isFollowing) {
+        const div = document.createElement('div');
+        div.className = 'post fade-in';
+        
+        const timeAgo = this.timeAgo(new Date(post.timestamp));
+        const isLiked = post.likedBy.includes(this.currentUser.handle);
+        
+        div.innerHTML = `
+          <div class="post-header">
+            <div class="post-user">
+              <div class="post-avatar">${post.authorName.charAt(0)}</div>
+              <div class="post-info">
+                <h4>${post.authorName}</h4>
+                <span class="post-time">@${post.author} • ${timeAgo}</span>
+              </div>
+            </div>
+            ${post.author !== this.currentUser.handle ? `
+              <button class="follow-btn ${isFollowing ? 'following' : ''}" data-user="${post.author}">
+                ${isFollowing ? 'Following' : 'Follow'}
+              </button>
+            ` : ''}
           </div>
-
-          <div class="contact-form" data-comments="${id}" style="display:none; margin-top:1rem;">
-            <div class="form-group">
-              <input data-c-handle="${id}" placeholder="Your handle (optional)">
+          <div class="post-content">${this.formatContent(post.content)}</div>
+          ${post.media ? `
+            <div class="post-media">
+              ${post.media.type === 'img' 
+                ? `<img src="${post.media.src}" class="post-image" alt="Post media">` 
+                : `<video src="${post.media.src}" class="post-video" controls></video>`
+              }
             </div>
-            <div class="form-group">
-              <textarea data-c-text="${id}" placeholder="Write a comment..."></textarea>
-            </div>
-            <button class="submit-btn" data-c-post="${id}">
-              <i class="fas fa-comment"></i> Add Comment
+          ` : ''}
+          <div class="post-actions">
+            <button class="action-btn ${isLiked ? 'active' : ''}" data-action="like" data-post="${post.id}">
+              <i class="fas fa-heart"></i> ${post.likes}
             </button>
-            <div data-c-list="${id}" style="margin-top:1rem;"></div>
+            <button class="action-btn" data-action="comment" data-post="${post.id}">
+              <i class="fas fa-comment"></i> ${post.comments.length}
+            </button>
+            <button class="action-btn" data-action="share" data-post="${post.id}">
+              <i class="fas fa-share"></i> ${post.shares}
+            </button>
+            ${post.author === this.currentUser.handle ? `
+              <button class="action-btn" data-action="delete" data-post="${post.id}">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            ` : ''}
           </div>
         `;
-        feedEl.appendChild(card);
+        
+        return div;
+      }
 
-        // set like count & current user's like state
-        const likeBtn = card.querySelector('button[data-like]');
-        if (likeBtn) {
-          const count = await getLikeCount(id);
-          const cntEl = likeBtn.querySelector('[data-like-count]');
-          if (cntEl) cntEl.textContent = String(count);
+      handleFeedInteraction(event) {
+        const button = event.target.closest('button');
+        if (!button) return;
 
-          const liked = await userHasLiked(id);
-          likeBtn.dataset.liked = liked.toString();
-          likeBtn.classList.toggle('liked', liked);
+        const action = button.dataset.action;
+        const postId = parseInt(button.dataset.post);
+        const user = button.dataset.user;
+
+        switch (action) {
+          case 'like':
+            this.toggleLike(postId);
+            break;
+          case 'comment':
+            this.openComments(postId);
+            break;
+          case 'share':
+            this.sharePost(postId);
+            break;
+          case 'delete':
+            this.deletePost(postId);
+            break;
         }
+
+        if (user && button.classList.contains('follow-btn')) {
+          this.toggleFollow(user, button);
+        }
+      }
+
+      toggleLike(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) return;
+
+        const userIndex = post.likedBy.indexOf(this.currentUser.handle);
+        if (userIndex === -1) {
+          post.likedBy.push(this.currentUser.handle);
+          post.likes++;
+        } else {
+          post.likedBy.splice(userIndex, 1);
+          post.likes--;
+        }
+
+        localStorage.setItem('trd_posts', JSON.stringify(this.posts));
+        this.loadFeed();
+      }
+
+      toggleFollow(userHandle, button) {
+        const index = this.following.indexOf(userHandle);
+        if (index === -1) {
+          this.following.push(userHandle);
+          button.textContent = 'Following';
+          button.classList.add('following');
+        } else {
+          this.following.splice(index, 1);
+          button.textContent = 'Follow';
+          button.classList.remove('following');
+        }
+        localStorage.setItem('trd_following', JSON.stringify(this.following));
+        this.updateStats();
+      }
+
+      sharePost(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) return;
+        
+        post.shares++;
+        localStorage.setItem('trd_posts', JSON.stringify(this.posts));
+        this.loadFeed();
+        
+        // Copy share link (mock)
+        navigator.clipboard?.writeText(`Check out this post from ${post.authorName}!`);
+        alert('Post shared! Link copied to clipboard.');
+      }
+
+      deletePost(postId) {
+        if (confirm('Delete this post?')) {
+          this.posts = this.posts.filter(p => p.id !== postId);
+          localStorage.setItem('trd_posts', JSON.stringify(this.posts));
+          this.loadFeed();
+          this.updateStats();
+        }
+      }
+
+      openComments(postId) {
+        alert('Comments feature coming soon!');
+      }
+
+      followUser(button) {
+        button.textContent = 'Following';
+        button.style.background = '#8b0000';
+      }
+
+      updateStats() {
+        const userPosts = this.posts.filter(p => p.author === this.currentUser.handle);
+        document.getElementById('postCount').textContent = userPosts.length;
+        document.getElementById('followingCount').textContent = this.following.length;
+        // Follower count would be calculated based on who follows current user
+        document.getElementById('followerCount').textContent = Math.floor(Math.random() * 50);
+      }
+
+      formatContent(content) {
+        // Basic hashtag and mention formatting
+        return content
+          .replace(/#(\w+)/g, '<span style="color: #dc1414;">#$1</span>')
+          .replace(/@(\w+)/g, '<span style="color: #ff6b6b;">@$1</span>');
+      }
+
+      timeAgo(date) {
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffMins < 1) return 'now';
+        if (diffMins < 60) return `${diffMins}m`;
+        if (diffHours < 24) return `${diffHours}h`;
+        return `${diffDays}d`;
       }
     }
 
-    // initial load
-    loadFeed();
+    // Initialize the social platform
+    document.addEventListener('DOMContentLoaded', () => {
+      new WastelandSocial();
+    });
   </script>
 </body>
 </html>
